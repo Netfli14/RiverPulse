@@ -1,0 +1,1 @@
+export async function GET(){return Response.json({googleMapsKey:process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY||"",googleMapsId:process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID||""},{headers:{"Cache-Control":"no-store"}})}

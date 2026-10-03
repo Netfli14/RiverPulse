@@ -73,3 +73,9 @@ export const notifications = sqliteTable("notifications", {
   type:text("type").notNull(), title:text("title").notNull(), body:text("body").notNull(),
   readAt:integer("read_at",{mode:"timestamp"}), ...timestamps,
 }, t=>[index("idx_notifications_user_read").on(t.userId,t.readAt)]);
+
+// Packets received from authenticated hardware; never seeded with sample readings.
+export const robotTelemetry = sqliteTable("robot_telemetry", {
+  id:integer("id").primaryKey({autoIncrement:true}),robotId:text("robot_id").notNull(),
+  payload:text("payload").notNull(),receivedAt:integer("received_at").notNull(),
+}, t=>[index("idx_robot_telemetry_time").on(t.robotId,t.receivedAt)]);

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { RobotProvider } from "@/components/robot-provider";
 
 export const metadata: Metadata = {
   title: "RiverPulse — мониторинг состояния воды",
@@ -17,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru" suppressHydrationWarning>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased"><RobotProvider>{children}</RobotProvider></body>
     </html>
   );
 }

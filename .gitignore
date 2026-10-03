@@ -48,3 +48,10 @@ next-env.d.ts
 
 # generated type cache
 *.tsbuildinfo
+
+# Robot-local Wi-Fi credentials and build state
+/firmware/esp32/config.h
+/firmware/esp32/.pio/
+/gateways/.venv/
+__pycache__/
+*.pt

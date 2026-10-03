@@ -1,57 +1,43 @@
 # RiverPulse
 
-RiverPulse is a responsive environmental monitoring platform for rivers and lakes. It combines a real MapLibre map, demonstration water-quality telemetry, RiverCleaner robot monitoring, alerts, analytics, reports, and a role-protected operator dashboard.
+RiverPulse displays real ESP32 telemetry, RC-01 position on Google Maps, and camera video with YOLO detections. The interface supports Russian, Kazakh and English. Missing sensors and disconnected robots show empty or stale states; no measurements or detections are simulated.
 
-> All measurements shown in the demo are simulation data and must not be used for water-safety decisions.
+## Connect hardware
 
-The map uses real OpenStreetMap/Esri tiles with sample marker locations; there are no connected field sensors. Citizen reports are saved only in the current browser for demonstration, and the photo stays on the device. The user account route is a demo view. The administrator route checks a server-side password and signed session cookie.
+See [the complete hardware and deployment guide](docs/HARDWARE.md).
 
-## Stack
+- Flash [the ESP32 firmware](firmware/esp32/riverpulse.ino). Copy `config.example.h` to `config.h`, configure the actual hardware and implement the sensor-specific readings. Internal ESP32 temperature is not water temperature.
+- Open the HTTPS website in a browser with Web Bluetooth support. On the Robots page, connect `RiverPulse-RC-01`. Received JSON notifications update the dashboard, chart and CSV export.
+- For remote access, configure Wi-Fi on the ESP32, a trusted server certificate, `ROBOT_INGEST_TOKEN` and Supabase. Create the telemetry table with [the SQL migration](docs/supabase-telemetry.sql). The robot sends authenticated HTTPS packets; browsers read stored telemetry.
+- Run [the YOLO gateway](gateways/yolo_gateway.py) on a laptop or Raspberry Pi with a camera and an existing model. Expose it over HTTPS, restrict CORS to your site, and enter its `/video` address and token in RiverPulse. The stream contains detections aligned with its video frames.
 
-- Next.js App Router, React, and TypeScript
-- Tailwind CSS and shadcn/ui structure
-- MapLibre GL JS with OpenStreetMap and Esri imagery
-- Framer Motion and a reduced-motion-aware hero effect
-- Lucide icons and responsive RU/KZ/EN interface
+RC-01 has an assigned point on the Ishim river in Astana. Received GPS coordinates update the map. Before GPS is available, the interface identifies the point as an assigned location. Google Maps works through an embed without a browser API key; an optional restricted `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` enables the interactive Maps JavaScript view.
 
-## Local development
+BLE works near the robot. For continuous remote operation, use Wi-Fi/4G with MQTT over TLS, a persistent gateway, and WebRTC for video. Keep a physical stop switch and an onboard watchdog. A BLE STOP command is only reported as confirmed after an acknowledgement from the configured motor-disable output.
 
-Requires Node.js 22.13 or later and pnpm 11.
+## Develop and verify
 
-```bash
+Requires Node.js 22.13+ and pnpm 11.
+
+```sh
 pnpm install
 pnpm dev
-```
-
-Create `.env.local` from `.env.example` before testing the operator login:
-
-```env
-ADMIN_PASSWORD=your-password
-ADMIN_SESSION_SECRET=at-least-32-random-characters
-```
-
-The operator password is never committed to the repository. In production, configure both values in the hosting provider's encrypted environment settings.
-
-## Verification
-
-```bash
+pnpm test
 pnpm exec tsc --noEmit
-pnpm run lint
-pnpm exec next build
+pnpm lint
+pnpm vercel-build
 ```
 
-## Vercel
+The automated tests use a mocked Bluetooth adapter to test packet fragmentation, validation, notifications, STOP writes and disconnect cleanup. They do not certify physical hardware, sensor calibration or camera inference.
 
-Import the repository into Vercel, select the Next.js framework preset, and add `ADMIN_PASSWORD` plus `ADMIN_SESSION_SECRET` to Production, Preview, and Development environments. `vercel.json` explicitly runs the native Next.js production build.
+## Deploy to Vercel
 
-## Main routes
+Import this repository with the Next.js preset. `vercel.json` selects `pnpm vercel-build`. Set optional Google Maps configuration and the server values documented in `.env.example` in Vercel's environment settings. Never commit `.env.local`, `firmware/esp32/config.h` or gateway tokens.
 
-- `/` — product overview and live demo
-- `/map` — interactive monitoring map
-- `/water/esil` — water-body telemetry and AI analysis
-- `/robots/rc-01` — RiverCleaner monitoring
-- `/analytics` — environmental analytics
-- `/reports` — citizen reports
-- `/learn` and `/about` — education and project information
-- `/dashboard` — user dashboard
-- `/operator` — protected operator dashboard
+`ADMIN_PASSWORD` and a random `ADMIN_SESSION_SECRET` protect the operator dashboard. Real user registration on Vercel requires `SUPABASE_URL` and `SUPABASE_ANON_KEY`. Telemetry storage additionally requires `SUPABASE_SERVICE_ROLE_KEY` and `ROBOT_INGEST_TOKEN`. On Sites, the same routes can use D1. An unconfigured database never grants a simulated user session.
+
+Citizen reports are explicitly labelled local drafts. They persist in the current browser and are not presented as submitted reports.
+
+## Routes
+
+`/`, `/map`, `/water/esil`, `/robots/rc-01`, `/analytics`, `/reports`, `/learn`, `/about`, `/dashboard`, `/operator`.

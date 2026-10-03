@@ -15,6 +15,13 @@
       "when": 1790456380975,
       "tag": "0001_hard_barracuda",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1791059413946,
+      "tag": "0002_lonely_fenris",
+      "breakpoints": true
     }
   ]
 }
