@@ -11,8 +11,10 @@ export async function createAdminSession(){
 
 export async function verifyAdminSession(value:string|undefined){
   if(!value||!getSecret())return false;
+  if(!/^\d{1,16}\.[a-f0-9]{64}$/.test(value))return false;
   const [timestamp,signature]=value.split(".");
-  if(!timestamp||!signature||Date.now()-Number(timestamp)>8*60*60*1000)return false;
+  const issued=Number(timestamp),age=Date.now()-issued;
+  if(!Number.isSafeInteger(issued)||age<0||age>=8*60*60*1000)return false;
   const expected=hex(await crypto.subtle.sign("HMAC",await key(),encoder.encode(timestamp)));
   if(expected.length!==signature.length)return false;
   let diff=0;for(let i=0;i<expected.length;i++)diff|=expected.charCodeAt(i)^signature.charCodeAt(i);

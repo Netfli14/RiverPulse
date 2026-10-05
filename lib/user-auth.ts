@@ -30,6 +30,7 @@ export async function createUserSession(userId: string) {
 
 export async function verifyUserSession(token: string | undefined) {
   if (!token || !process.env.ADMIN_SESSION_SECRET) return null;
+  if(token.split(".").length!==3)return null;
   const [userId, expiry, signature] = token.split(".");
   if (!userId || !expiry || !signature || !Number.isFinite(Number(expiry)) || Number(expiry) < Date.now()) return null;
   const expected = hex(await crypto.subtle.sign("HMAC", await sessionKey(), encoder.encode(`${userId}.${expiry}`)));

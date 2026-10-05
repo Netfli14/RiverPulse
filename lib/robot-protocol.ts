@@ -31,12 +31,17 @@ export function isFresh(reading: Reading | null, now = Date.now()) {
 export class TelemetryDecoder {
   private decoder = new TextDecoder();
   private pending = "";
-  push(chunk: DataView | Uint8Array): Telemetry[] {
+  push(chunk: DataView | Uint8Array, onInvalid?: (error:unknown)=>void): Telemetry[] {
     const bytes = new Uint8Array(chunk.buffer, chunk.byteOffset, chunk.byteLength);
     this.pending += this.decoder.decode(bytes, {stream:true});
     if (this.pending.length > 16_384) { this.reset(); throw new Error("packet_too_large"); }
     const lines = this.pending.split("\n"); this.pending = lines.pop() ?? "";
-    return lines.filter(line=>line.trim()).map(line=>validateTelemetry(JSON.parse(line)));
+    const packets:Telemetry[]=[];
+    for(const line of lines.filter(line=>line.trim())){
+      try{packets.push(validateTelemetry(JSON.parse(line)))}
+      catch(error){if(!onInvalid)throw error;onInvalid(error)}
+    }
+    return packets;
   }
   reset() { this.pending = ""; this.decoder = new TextDecoder(); }
 }

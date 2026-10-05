@@ -21,28 +21,29 @@ export function RobotProvider({children}:{children:ReactNode}) {
     setReading(sample);setHistory(old=>[...old,sample].slice(-900));setNow(Date.now());setError("");
   },[]);
   const disconnect=useCallback(()=>{
-    if(stopTimer.current)clearTimeout(stopTimer.current);stopId.current="";
+    if(stopTimer.current)clearTimeout(stopTimer.current);
+    if(stopId.current)setStopState("failed");stopId.current="";
     activeTransport.current="";client.current?.disconnect();client.current=null;
     if(socket.current){socket.current.onclose=null;socket.current.close();socket.current=null}
-    setConnection("disconnected");setTransport("");
+    setConnection("disconnected");setTransport("");setDeviceName("");
   },[]);
-  function begin(kind:string){disconnect();lastSeq.current=-1;lastBoot.current="";setReading(null);setHistory([]);setStopState("");setError("");activeTransport.current=kind;setTransport(kind);setConnection("connecting")}
+  function begin(kind:string){disconnect();lastSeq.current=-1;lastBoot.current="";setStopState("");setError("");activeTransport.current=kind;setTransport(kind);setConnection("connecting")}
   async function connectBluetooth(){
     if(!window.isSecureContext){setError("https_required");return}
     const adapter=(navigator as Navigator&{bluetooth?:BluetoothAdapter}).bluetooth;
     if(!adapter){setError("bluetooth_unsupported");return}
     begin("bluetooth");
-    const current=new RobotBluetoothClient(packet=>accept(packet,"bluetooth"),()=>{activeTransport.current="";setTransport("");setConnection("disconnected");setError("disconnected")},code=>setError(code));
+    const current=new RobotBluetoothClient(packet=>{if(client.current===current)accept(packet,"bluetooth")},()=>{if(client.current!==current)return;disconnect();setError("disconnected")},code=>{if(client.current===current)setError(code)});
     client.current=current;
     try{const name=await current.connect(adapter);if(client.current===current){setDeviceName(name);setConnection("connected")}}
-    catch(e){activeTransport.current="";setTransport("");setConnection("error");setError(e instanceof DOMException&&e.name==="NotFoundError"?"cancelled":"connection_failed")}
+    catch(e){if(client.current!==current)return;activeTransport.current="";setTransport("");setConnection("error");setError(e instanceof Error&&e.message==="cancelled"?"cancelled":"connection_failed")}
   }
   function connectNetwork(url:string){
     try{
       const endpoint=secureEndpoint(url,["wss:"]);begin("network");const ws=new WebSocket(endpoint);socket.current=ws;
-      ws.onopen=()=>{setDeviceName("RC-01 · Wi-Fi / gateway");setConnection("connected")};
-      ws.onmessage=e=>{try{if(typeof e.data!=="string"||e.data.length>16384)throw new Error();accept(validateTelemetry(JSON.parse(e.data)),"network")}catch{setError("invalid_packet")}};
-      ws.onerror=()=>{setError("connection_failed");setConnection("error")};
+      ws.onopen=()=>{if(socket.current!==ws)return;setDeviceName("RC-01 · Wi-Fi / gateway");setConnection("connected")};
+      ws.onmessage=e=>{if(socket.current!==ws)return;try{if(typeof e.data!=="string"||e.data.length>16384)throw new Error();accept(validateTelemetry(JSON.parse(e.data)),"network")}catch{setError("invalid_packet")}};
+      ws.onerror=()=>{if(socket.current!==ws)return;setError("connection_failed");setConnection("error")};
       ws.onclose=()=>{if(socket.current!==ws)return;activeTransport.current="";setTransport("");setConnection("disconnected");setError("disconnected")};
     }catch{setError("https_required")}
   }
@@ -58,7 +59,7 @@ export function RobotProvider({children}:{children:ReactNode}) {
   }
   useEffect(()=>{
     const timer=setInterval(()=>setNow(Date.now()),1000);
-    return()=>{clearInterval(timer);client.current?.disconnect();socket.current?.close();if(stopTimer.current)clearTimeout(stopTimer.current)};
+    return()=>{clearInterval(timer);client.current?.disconnect();client.current=null;if(socket.current){socket.current.onclose=null;socket.current.close();socket.current=null}if(stopTimer.current)clearTimeout(stopTimer.current)};
   },[]);
   // Remote ESP32 HTTPS ingestion is visible to every browser via this persisted endpoint.
   useEffect(()=>{
@@ -66,10 +67,11 @@ export function RobotProvider({children}:{children:ReactNode}) {
     async function poll(){if(activeTransport.current)return;try{
       const response=await fetch("/api/robots/rc-01/telemetry",{cache:"no-store",signal:controller.signal});
       if(!response.ok)return;const result=await response.json() as {reading:unknown;receivedAt:number};
-      if(alive&&result.reading){accept(validateTelemetry(result.reading),"cloud",result.receivedAt)}
+      if(alive&&!activeTransport.current&&result.reading&&Number.isFinite(result.receivedAt)){accept(validateTelemetry(result.reading),"cloud",result.receivedAt)}
     }catch{}}
     void poll();const timer=setInterval(poll,5000);return()=>{alive=false;controller.abort();clearInterval(timer)};
   },[accept]);
-  return <Context.Provider value={{reading,history,connection,deviceName,error,fresh:isFresh(reading,now),transport,connectBluetooth,connectNetwork,disconnect,stop,stopState}}>{children}</Context.Provider>;
+  const fresh=isFresh(reading,now)&&(reading?.source==="cloud"||(connection==="connected"&&reading?.source===transport));
+  return <Context.Provider value={{reading,history,connection,deviceName,error,fresh,transport,connectBluetooth,connectNetwork,disconnect,stop,stopState}}>{children}</Context.Provider>;
 }
 export function useRobot(){const value=useContext(Context);if(!value)throw new Error("RobotProvider unavailable");return value}

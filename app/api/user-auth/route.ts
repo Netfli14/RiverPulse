@@ -14,7 +14,8 @@ async function database() {
 }
 
 export async function POST(request: NextRequest) {
-  const body = await request.json().catch(() => ({})) as { action?: string; email?: unknown; password?: unknown };
+  const raw:unknown=await request.json().catch(()=>null);
+  const body = (raw&&typeof raw==="object"?raw:{}) as { action?: string; email?: unknown; password?: unknown };
   const email = typeof body.email === "string" ? normalizeEmail(body.email) : null;
   const password = body.password;
   if (!email || typeof password !== "string" || password.length < 8 || password.length > 128) {

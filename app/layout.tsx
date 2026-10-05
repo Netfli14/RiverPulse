@@ -3,7 +3,7 @@ import "./globals.css";
 import { RobotProvider } from "@/components/robot-provider";
 
 export const metadata: Metadata = {
-  title: "RiverPulse — мониторинг состояния воды",
+  title: "RiverPulse - мониторинг состояния воды",
   description: "Интерактивная платформа экологического мониторинга рек, предупреждений и работы RiverCleaner.",
   icons: {
     icon: "/favicon.svg",

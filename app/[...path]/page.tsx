@@ -1,5 +1,5 @@
-import RiverPulseApp from "@/components/riverpulse-app";
+import {notFound} from "next/navigation";
 
 export default function CatchAllPage() {
-  return <RiverPulseApp />;
+  notFound();
 }

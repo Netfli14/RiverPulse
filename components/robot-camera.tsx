@@ -12,11 +12,13 @@ export function RobotCamera({language}:{language:Language}){
   const [status,setStatus]=useState(""),[error,setError]=useState(""),[localOn,setLocalOn]=useState(false);
   const video=useRef<HTMLVideoElement>(null),stream=useRef<MediaStream|null>(null),panel=useRef<HTMLElement>(null);
   const alive=useRef(true);
-  function stop(){stream.current?.getTracks().forEach(track=>track.stop());stream.current=null;if(video.current)video.current.srcObject=null;setLocalOn(false);setSource("");setFrame(null);setStatus("");setYolo(false)}
-  useEffect(()=>{alive.current=true;return()=>{alive.current=false;stream.current?.getTracks().forEach(track=>track.stop())}},[]);
-  async function local(){stop();setError("");try{if(!navigator.mediaDevices?.getUserMedia)throw new Error();const media=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"},audio:false});if(!alive.current){media.getTracks().forEach(t=>t.stop());return}stream.current=media;if(video.current){video.current.srcObject=media;await video.current.play()}setLocalOn(true);setStatus(copy(language,"Камера этого устройства","Осы құрылғының камерасы","This device's camera"))}catch{setError(copy(language,"Камера недоступна или доступ не разрешён.","Камера қолжетімсіз немесе рұқсат берілмеді.","Camera unavailable or permission denied."))}}
+  const generation=useRef(0);
+  function stop(){generation.current++;stream.current?.getTracks().forEach(track=>track.stop());stream.current=null;if(video.current)video.current.srcObject=null;setLocalOn(false);setSource("");setFrame(null);setStatus("");setYolo(false)}
+  useEffect(()=>{alive.current=true;return()=>{alive.current=false;generation.current++;stream.current?.getTracks().forEach(track=>track.stop())}},[]);
+  async function local(){stop();const request=generation.current;setError("");try{if(!navigator.mediaDevices?.getUserMedia)throw new Error();const media=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"},audio:false});if(!alive.current||request!==generation.current){media.getTracks().forEach(t=>t.stop());return}stream.current=media;if(video.current){video.current.srcObject=media;await video.current.play()}if(!alive.current||request!==generation.current)return;setLocalOn(true);setStatus(copy(language,"Камера этого устройства","Осы құрылғының камерасы","This device's camera"))}catch{if(request!==generation.current||!alive.current)return;stream.current?.getTracks().forEach(track=>track.stop());stream.current=null;setError(copy(language,"Камера недоступна или доступ не разрешён.","Камера қолжетімсіз немесе рұқсат берілмеді.","Camera unavailable or permission denied."))}}
   async function connect(e:FormEvent){
     e.preventDefault();stop();setError("");
+    const request=generation.current;
     try{
       const endpoint=secureEndpoint(url,["https:"]);
       if(protectedStream){
@@ -24,10 +26,11 @@ export function RobotCamera({language}:{language:Language}){
         const base=new URL(endpoint);base.pathname=base.pathname.replace(/\/video\/?$/,"/stream-ticket");base.search="";
         const response=await fetch(base.toString(),{method:"POST",headers:{authorization:"Bearer "+token}});
         if(!response.ok)throw new Error("ticket");const result=await response.json() as {ticket:string};
+        if(!alive.current||request!==generation.current)return;
         if(!result.ticket)throw new Error("ticket");const streamUrl=new URL(endpoint);streamUrl.searchParams.set("ticket",result.ticket);setSource(streamUrl.toString());
       }else setSource(endpoint);
       setStatus(copy(language,"Ожидание видеокадра…","Бейне кадры күтілуде…","Waiting for video frame…"));
-    }catch{setError(copy(language,"Поток недоступен. Проверь HTTPS, токен шлюза и CORS.","Ағын қолжетімсіз. HTTPS, шлюз токенін және CORS тексеріңіз.","Stream unavailable. Check HTTPS, gateway token and CORS."))}
+    }catch{if(!alive.current||request!==generation.current)return;setError(copy(language,"Поток недоступен. Проверь HTTPS, токен шлюза и CORS.","Ағын қолжетімсіз. HTTPS, шлюз токенін және CORS тексеріңіз.","Stream unavailable. Check HTTPS, gateway token and CORS."))}
   }
 
   useEffect(()=>{

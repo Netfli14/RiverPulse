@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminSession, validAdminPassword } from "@/lib/admin-auth";
 
 export async function POST(request:NextRequest){
-  const body=await request.json().catch(()=>({})) as {password?:unknown};
+  const raw:unknown=await request.json().catch(()=>null);
+  const body=(raw&&typeof raw==="object"?raw:{}) as {password?:unknown};
   if(!process.env.ADMIN_PASSWORD||!process.env.ADMIN_SESSION_SECRET)return NextResponse.json({ok:false,error:"Admin access is not configured"},{status:503});
   if(typeof body.password!=="string"||!validAdminPassword(body.password))return NextResponse.json({ok:false},{status:401});
   const token=await createAdminSession();
