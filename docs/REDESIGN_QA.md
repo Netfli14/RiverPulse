@@ -43,3 +43,13 @@ Open RiverPulse → connect RC-01 over BLE or a secure network gateway → decod
 Modules loaded: motion-principles, mobile-principles, framer-motion, tells, ui-ux-pro-max, design-audit. The web tells reference was read. UI-UX lookup supplied flat layout and interaction guidance; its unrelated palette/font suggestion was discarded in favour of the supplied palette and a local Cyrillic/Kazakh-capable font stack.
 
 Modules not loaded: none required by the selected stack.
+
+## Navigation follow-up
+
+The reported page-opening problem was investigated on the published Vercel site. All 12 supported URLs returned HTTP 200, but client clicks initially left the old view displayed while a server navigation completed. No application exception appeared in the browser console during reproduction.
+
+Known RiverPulse views now use same-document navigation with the native History API integrated with `usePathname`. This switches the already loaded view without an RSC round trip or document reload. Normal links remain available for direct opens, modified clicks, new tabs, downloads, external URLs and unknown routes. Browser Back/Forward is preserved. Protected views still execute their existing auth gates, and the root robot provider remains mounted.
+
+Storage reads/writes no longer throw out of the preference effects. A blocked browser store therefore cannot leave the entire application on the initial loader. A per-page error boundary offers retry and a home link without unmounting the root device provider.
+
+Validation: 24 tests pass (17 existing robot/auth/ingestion tests plus 7 navigation regressions); TypeScript and the Next.js production build pass. In the supervised browser, the map, water, robot, analytics, reports, learning, about, login and registration views open through their actual links. Back/Forward between login and registration works; no application console errors were observed. Authenticated sessions and physical hardware were not created or simulated for this test.

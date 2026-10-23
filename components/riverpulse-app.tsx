@@ -1,7 +1,9 @@
 "use client";
 /* eslint-disable react-hooks/set-state-in-effect */
 import {useEffect,useState,type FormEvent} from "react";
-import Link from "next/link";
+import {AppLink as Link} from "@/components/app-link";
+import {PageErrorBoundary} from "@/components/page-error-boundary";
+import {normalizeAppPath} from "@/lib/app-navigation";
 import {usePathname} from "next/navigation";
 import {Bluetooth,Download,ExternalLink,FileText,Languages,LogOut,MapPin,Menu,Moon,RefreshCw,Search,Sun,Waves,Wifi,X} from "lucide-react";
 import {Activity,ArrowRight,ArrowUpRight,ChevronRight,Droplets,Leaf,Radio,RadioTower,ShieldCheck} from "lucide-react";
@@ -79,7 +81,7 @@ function LoginPage({language}:{language:Language}){
       setError(result.error==="confirmation_required"?loc(language,"Проверь почту и подтверди регистрацию.","Поштаңызды тексеріп, тіркелуді растаңыз.","Check your email and confirm your registration."):response.status===503?t(language,admin?"login.unconfigured":"login.unavailable"):admin?t(language,"login.error"):result.error==="exists"?t(language,"login.exists"):result.error==="invalid_input"?t(language,"login.invalid"):t(language,"login.userError"));
     }catch{setError(t(language,"login.unavailable"))}finally{setLoading(false)}
   }
-  return <main className="rp-auth"><form className="rp-card rp-auth-card" onSubmit={submit}><Brand/><h1>{t(language,register?"login.registerTitle":"login.title")}</h1>{!register&&<label>{t(language,"login.account")}<select value={role} onChange={e=>setRole(e.target.value as "user"|"admin")}><option value="user">{t(language,"login.user")}</option><option value="admin">{t(language,"login.admin")}</option></select></label>}{(role==="user"||register)&&<label>{t(language,"login.email")}<input type="email" value={email} onChange={e=>setEmail(e.target.value)} required placeholder="name@example.com" autoComplete="email"/></label>}<label>{t(language,role==="admin"&&!register?"login.password":"login.userPassword")}<input type="password" value={password} onChange={e=>setPassword(e.target.value)} required minLength={role==="admin"&&!register?undefined:8} autoComplete={register?"new-password":"current-password"}/></label>{error&&<p className="rp-error" role="alert">{error}</p>}<button className="rp-button primary full" disabled={loading}>{loading?<RefreshCw className="spin" size={17}/>:null}{t(language,register?"login.register":"login.submit")}</button><a className="rp-auth-link" href={register?"/login":"/register"}>{t(language,register?"login.haveAccount":"login.needAccount")}</a></form></main>
+  return <main className="rp-auth"><form className="rp-card rp-auth-card" onSubmit={submit}><Brand/><h1>{t(language,register?"login.registerTitle":"login.title")}</h1>{!register&&<label>{t(language,"login.account")}<select value={role} onChange={e=>setRole(e.target.value as "user"|"admin")}><option value="user">{t(language,"login.user")}</option><option value="admin">{t(language,"login.admin")}</option></select></label>}{(role==="user"||register)&&<label>{t(language,"login.email")}<input type="email" value={email} onChange={e=>setEmail(e.target.value)} required placeholder="name@example.com" autoComplete="email"/></label>}<label>{t(language,role==="admin"&&!register?"login.password":"login.userPassword")}<input type="password" value={password} onChange={e=>setPassword(e.target.value)} required minLength={role==="admin"&&!register?undefined:8} autoComplete={register?"new-password":"current-password"}/></label>{error&&<p className="rp-error" role="alert">{error}</p>}<button className="rp-button primary full" disabled={loading}>{loading?<RefreshCw className="spin" size={17}/>:null}{t(language,register?"login.register":"login.submit")}</button><Link className="rp-auth-link" href={register?"/login":"/register"}>{t(language,register?"login.haveAccount":"login.needAccount")}</Link></form></main>
 }
 function UserGate({language}:{language:Language}){const [email,setEmail]=useState<string|null>(null);const [loading,setLoading]=useState(true);useEffect(()=>{const token=sessionStorage.getItem("riverpulse-user-session");fetch("/api/user-auth",{headers:token?{authorization:"Bearer "+token}:{},cache:"no-store"}).then(async response=>{if(response.ok){const data=await response.json() as {email:string};setEmail(data.email)}}).catch(()=>{}).finally(()=>setLoading(false))},[]);if(loading)return <Loading/>;if(!email)return <LoginPage language={language}/>;return <UserDashboard language={language} email={email}/>}
 
@@ -89,5 +91,27 @@ function AdminDashboard({language}:{language:Language}){return <main className="
 function Footer({language}:{language:Language}){return <footer className="rp-footer"><div className="shell"><div className="rp-footer-top"><Brand/><p>{loc(language,"Знать реку.\nБеречь её будущее.","Өзенді таны.\nБолашағын сақта.","Know the river.\nProtect its future.")}</p><nav aria-label={loc(language,"Дополнительные страницы","Қосымша беттер","More pages")}>{routes.slice(4).map(([key,href])=><Link key={href} href={href}>{t(language,key)}</Link>)}</nav></div><div className="rp-footer-bottom"><span>© 2026 RiverPulse</span><span>RiverCleaner / ESP32</span><a href="https://github.com/Netfli14/RiverPulse" target="_blank" rel="noreferrer">GitHub<ArrowUpRight size={15}/></a></div></div></footer>}
 
 function Loading(){return <div className="rp-loading"><RefreshCw className="spin"/><span>RiverPulse</span></div>}
-function AppRouter({language}:{language:Language}){const path=usePathname()||"/";if(path==="/")return <Home language={language}/>;if(path==="/map")return <MapPage language={language}/>;if(path==="/water/esil")return <WaterPage language={language}/>;if(path==="/robots/rc-01")return <RobotPage language={language}/>;if(path==="/analytics")return <AnalyticsPage language={language}/>;if(path==="/reports")return <ReportsPage language={language}/>;if(path==="/learn")return <LearnPage language={language}/>;if(path==="/about")return <AboutPage language={language}/>;if(path==="/login"||path==="/register")return <LoginPage language={language}/>;if(path==="/operator")return <AdminGate language={language}/>;if(path==="/dashboard")return <UserGate language={language}/>;return <main className="rp-content"><PageTitle title={loc(language,"Страница не найдена","Бет табылмады","Page not found")}/><Link className="rp-button secondary" href="/">{t(language,"nav.home")}</Link></main>}
-export default function RiverPulseApp(){const [language,setLanguage]=useState<Language>("RU"),[theme,setTheme]=useState("light"),[ready,setReady]=useState(false);useEffect(()=>{const stored=localStorage.getItem("riverpulse-language");setLanguage(stored==="EN"||stored==="KZ"?stored:"RU");const saved=localStorage.getItem("riverpulse-theme");setTheme(saved==="dark"?"dark":"light");setReady(true)},[]);useEffect(()=>{if(!ready)return;localStorage.setItem("riverpulse-language",language);document.documentElement.lang=language==="RU"?"ru":language==="KZ"?"kk":"en"},[language,ready]);useEffect(()=>{if(!ready)return;localStorage.setItem("riverpulse-theme",theme);document.documentElement.classList.toggle("dark",theme==="dark")},[theme,ready]);if(!ready)return <Loading/>;return <MotionConfig reducedMotion="user"><Header language={language} setLanguage={setLanguage} theme={theme} setTheme={setTheme}/><AppRouter language={language}/></MotionConfig>}
+function AppRouter({language}:{language:Language}){const path=normalizeAppPath(usePathname()||"/");if(path==="/")return <Home language={language}/>;if(path==="/map")return <MapPage language={language}/>;if(path==="/water/esil")return <WaterPage language={language}/>;if(path==="/robots/rc-01")return <RobotPage language={language}/>;if(path==="/analytics")return <AnalyticsPage language={language}/>;if(path==="/reports")return <ReportsPage language={language}/>;if(path==="/learn")return <LearnPage language={language}/>;if(path==="/about")return <AboutPage language={language}/>;if(path==="/login"||path==="/register")return <LoginPage language={language}/>;if(path==="/operator")return <AdminGate language={language}/>;if(path==="/dashboard")return <UserGate language={language}/>;return <main className="rp-content"><PageTitle title={loc(language,"Страница не найдена","Бет табылмады","Page not found")}/><Link className="rp-button secondary" href="/">{t(language,"nav.home")}</Link></main>}
+export default function RiverPulseApp(){
+ const [language,setLanguage]=useState<Language>("RU"),[theme,setTheme]=useState("light"),[ready,setReady]=useState(false);
+ const path=usePathname()||"/";
+ useEffect(()=>{
+  try{
+   const stored=localStorage.getItem("riverpulse-language");setLanguage(stored==="EN"||stored==="KZ"?stored:"RU");
+   const saved=localStorage.getItem("riverpulse-theme");setTheme(saved==="dark"?"dark":"light");
+  }catch{/* A blocked browser store must not leave every page on the loader. */}
+  finally{setReady(true)}
+ },[]);
+ useEffect(()=>{
+  if(!ready)return;
+  try{localStorage.setItem("riverpulse-language",language)}catch{}
+  document.documentElement.lang=language==="RU"?"ru":language==="KZ"?"kk":"en";
+ },[language,ready]);
+ useEffect(()=>{
+  if(!ready)return;
+  try{localStorage.setItem("riverpulse-theme",theme)}catch{}
+  document.documentElement.classList.toggle("dark",theme==="dark");
+ },[theme,ready]);
+ if(!ready)return <Loading/>;
+ return <MotionConfig reducedMotion="user"><Header language={language} setLanguage={setLanguage} theme={theme} setTheme={setTheme}/><PageErrorBoundary key={path} language={language}><AppRouter language={language}/></PageErrorBoundary></MotionConfig>;
+}
