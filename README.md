@@ -57,3 +57,11 @@ The 32.7 MB presentation is stored in four binary parts in `source-documents/` f
 ## Routes
 
 `/presentation`, `/poster`, `/`, `/map`, `/water/esil`, `/robots/rc-01`, `/analytics`, `/reports`, `/learn`, `/about`, `/dashboard`, `/operator`.
+
+## Registration recovery
+
+Live platform: https://water-guard-station.vercel.app/. The earlier river-pulse-five.vercel.app alias is no longer attached.
+
+Configure a separate server-only `PORTAL_SESSION_SECRET` for Production and Preview before deployment. Registration validates the signing configuration and signs a session before saving a new account. A failed signing step therefore leaves the email available for retry. Visitor-count failures are logged without failing an otherwise successful sign-in. Session encoding supports UTF-8 email addresses. Existing accounts created by an earlier failed registration can use the sign-in form with the original password.
+
+`tests/registration-flow.test.mjs` covers configuration failure and retry, signing failure before account creation, international email sessions, and unavailable counters.
