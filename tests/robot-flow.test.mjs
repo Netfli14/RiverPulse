@@ -112,7 +112,7 @@ test('GATT flow connects, subscribes, receives, writes STOP and cleans up',async
  await assert.rejects(()=>client.stop('abcd1234'));
 });
 
-for(const [name,file] of [['telemetry-storage','lib/telemetry-storage.ts'],['telemetry-route','app/api/robots/rc-01/telemetry/route.ts'],['admin-login-route','app/api/admin-login/route.ts'],['user-auth-route','app/api/user-auth/route.ts']]){
+for(const [name,file] of [['portal-storage','lib/portal-storage.ts'],['telemetry-storage','lib/telemetry-storage.ts'],['telemetry-route','app/api/robots/rc-01/telemetry/route.ts'],['admin-login-route','app/api/admin-login/route.ts'],['user-auth-route','app/api/user-auth/route.ts']]){
   const source=fs.readFileSync(file,'utf8').replaceAll('@/lib/','./');
   fs.writeFileSync(path.join(root,name+'.js'),ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText);
 }

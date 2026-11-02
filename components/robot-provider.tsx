@@ -13,12 +13,18 @@ export function RobotProvider({children}:{children:ReactNode}) {
   const [stopState,setStopState]=useState("");const stopId=useRef("");const stopTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
   const client=useRef<RobotBluetoothClient|null>(null),socket=useRef<WebSocket|null>(null),lastSeq=useRef(-1);
   const activeTransport=useRef("");const lastBoot=useRef("");
+  const relayAt=useRef(0),relayBusy=useRef(false);
   const accept=useCallback((packet:Telemetry,source:Reading["source"],receivedAt=Date.now())=>{
     if(packet.ack?.id===stopId.current){stopId.current="";if(stopTimer.current)clearTimeout(stopTimer.current);setStopState(packet.ack.ok?"confirmed":"rejected")}
     if(packet.bootId&&packet.bootId!==lastBoot.current){lastSeq.current=-1;lastBoot.current=packet.bootId}
     if(packet.seq<=lastSeq.current)return;
     lastSeq.current=packet.seq;const sample={...packet,receivedAt,source};
     setReading(sample);setHistory(old=>[...old,sample].slice(-900));setNow(Date.now());setError("");
+    // Relay actual BLE/WSS packets without blocking notifications or STOP acknowledgements.
+    if(source!=="cloud"&&!relayBusy.current&&Date.now()-relayAt.current>=5000){
+      relayAt.current=Date.now();relayBusy.current=true;
+      void fetch("/api/portal/telemetry",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(packet),signal:AbortSignal.timeout(10000)}).catch(()=>null).finally(()=>{relayBusy.current=false});
+    }
   },[]);
   const disconnect=useCallback(()=>{
     if(stopTimer.current)clearTimeout(stopTimer.current);

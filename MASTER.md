@@ -1,4 +1,4 @@
-# RiverPulse design system
+# Water Guard Station design system
 
 Scope: full visual redesign explicitly requested by the user, preserving all routes, auth, BLE GATT, firmware, packet validation, STOP acknowledgements, WSS, HTTPS ingestion, Google Maps and camera/YOLO protocols from GitHub commit 180bc12.
 
@@ -42,3 +42,7 @@ Micro interactions 150ms; UI feedback 200–280ms; section reveals 480ms; river 
 ## Content
 
 Keep RU/KZ/EN, theme switch, account/role controls, report drafts and exports. Primary header focuses on map, monitoring and robot; reports, analytics and learning remain accessible. Until data arrives, show a short explanation and a dash; preserve last readings and flag stale data after 15 seconds. Show source and actual receive time. No displayed simulation data. The homepage live section is the real provider, not a mockup.
+
+## Water Guard portal extension
+
+User-requested motion: a full, uncropped Water Guard Station halftone wordmark responds to the pointer and taps in the footer. Keep the supplied warm palette, real prototype photograph, finite title and section reveals. Native canvas sleeps when idle and offscreen; reduced motion draws a static wordmark. The opening introduces the project and offers user, admin and jury access. Role transitions use 220 ms easing; title reveal uses 700 ms once on entry. PDF pages use their original full 16:9 bounds and independent zoom controls. The 30 complaint examples are visibly marked as demonstration records.
