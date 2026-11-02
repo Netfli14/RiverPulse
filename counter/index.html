@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light"><title>Water Guard Station · Счётчик</title>
+<style>
+:root{font-family:Arial,Helvetica,sans-serif;color:#252c26;background:#f7f6ee;font-synthesis:none}*{box-sizing:border-box}body{margin:0}main{max-width:1180px;margin:auto;padding:40px 24px 64px}header{display:flex;justify-content:space-between;gap:24px;align-items:center;border-bottom:1px solid #d2d0bb;padding-bottom:28px}a{color:#31798c;text-underline-offset:4px}header a{font-size:13px}.brand{font-size:20px;letter-spacing:-.04em;color:#254a0f}.kicker{font-size:11px;letter-spacing:.15em;color:#31798c;margin-top:56px}h1{font-size:clamp(38px,6vw,72px);line-height:1.03;letter-spacing:-.065em;max-width:720px;margin:20px 0}p{line-height:1.75;font-size:14px;color:#596052;max-width:620px}.top{display:flex;align-items:end;justify-content:space-between;gap:24px;margin-bottom:32px}button{font:inherit;font-size:13px;min-height:48px;border:1px solid #31798c;border-radius:10px;padding:12px 20px;background:#31798c;color:#fff;cursor:pointer;white-space:nowrap}button:disabled{opacity:.5;cursor:wait}:focus-visible{outline:3px solid #c9825c;outline-offset:4px}.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.metric{background:white;border:1px solid #d2d0bb;border-radius:16px;padding:28px;min-width:0}.metric small{font-size:12px;color:#596052}.metric strong{display:block;font-size:clamp(44px,5vw,68px);line-height:1.1;letter-spacing:-.06em;color:#254a0f;font-variant-numeric:tabular-nums;margin:24px 0 20px}.metric span{font-size:11px;color:#596052;line-height:1.6;display:block}.metric.role{background:#d2d0bb;border-color:#d2d0bb}.metric.role:nth-child(3){background:#412010;border-color:#412010;color:#f7f6ee}.metric.role:nth-child(3) :is(strong,small,span){color:#f7f6ee}.metric:last-child{background:#31798c;border-color:#31798c}.metric:last-child :is(strong,small,span){color:white}.note{padding-top:28px;margin-top:24px;border-top:1px solid #d2d0bb;display:flex;justify-content:space-between;gap:24px;align-items:start}.note p{font-size:12px;margin:0}.state{font-size:11px;color:#596052;line-height:1.7;min-width:190px;text-align:right}.error{color:#8a321b;background:#f3e4d9;border:1px solid #c9825c;border-radius:8px;padding:14px 18px;max-width:none}.error[hidden]{display:none}@media(max-width:760px){main{padding:24px 20px 40px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.metric{padding:22px}.top{align-items:start;flex-direction:column}.kicker{margin-top:36px}.note{flex-direction:column;gap:16px}.state{text-align:left}header{align-items:start}.brand{max-width:180px}}@media(max-width:420px){.metrics{gap:10px}.metric{padding:18px}.metric strong{font-size:42px}header a{font-size:12px}.brand{font-size:18px}h1{font-size:42px}}
+</style>
+</head>
+<body><main>
+<header><span class="brand">Water Guard Station</span><a href="https://river-pulse-five.vercel.app/" target="_blank" rel="noopener">Открыть платформу ↗</a></header>
+<div class="top"><div><div class="kicker">PROJECT / VISITOR COUNTER</div><h1>Каждый вход<br>имеет значение.</h1><p>Общая статистика платформы: посетители, входы по ролям, созданные аккаунты и реальные обращения.</p></div><button id="refresh" type="button">Обновить данные ↻</button></div>
+<p id="error" class="error" role="alert" hidden></p>
+<section class="metrics" aria-label="Статистика сайта">
+<article class="metric"><small>Посетители платформы</small><strong data-key="visitors">—</strong><span>Уникальные браузеры, открывшие сайт</span></article>
+<article class="metric role"><small>Пользователи</small><strong data-key="user">—</strong><span>Браузеры, вошедшие в роли пользователя</span></article>
+<article class="metric role"><small>Администраторы</small><strong data-key="admin">—</strong><span>Браузеры, успешно вошедшие по коду</span></article>
+<article class="metric role"><small>Гости жюри</small><strong data-key="jury">—</strong><span>Браузеры, открывшие гостевой доступ</span></article>
+<article class="metric"><small>Аккаунты</small><strong data-key="accounts">—</strong><span>Всего зарегистрированных пользователей</span></article>
+<article class="metric"><small>Обращения</small><strong data-key="reports">—</strong><span>Отправленные сообщения без 30 демо-примеров</span></article>
+</section>
+<div class="note"><p>Повторный вход из того же браузера не увеличивает счётчик роли. Один браузер может войти в несколько ролей. После очистки cookies он учитывается заново. Обновление каждые 15 секунд.</p><div class="state" id="state" role="status">Подключение к платформе…</div></div>
+</main>
+<script>
+const endpoint='https://river-pulse-five.vercel.app/api/portal/stats';
+let busy=false;
+async function refresh(){
+ if(busy)return;busy=true;const button=document.getElementById('refresh'),error=document.getElementById('error');button.disabled=true;
+ try{
+  const response=await fetch(endpoint,{cache:'no-store',signal:AbortSignal.timeout(20000)});if(!response.ok)throw new Error('unavailable');
+  const data=await response.json();if(!data.ok)throw new Error('unavailable');
+  const values={visitors:data.visitors,...data.entries,accounts:data.accounts,reports:data.reports};
+  document.querySelectorAll('[data-key]').forEach(node=>{const value=values[node.dataset.key];node.textContent=typeof value==='number'?value.toLocaleString('ru-RU'):'—'});
+  error.hidden=true;document.getElementById('state').textContent='Обновлено: '+new Date(data.updatedAt).toLocaleString('ru-RU',{timeZone:'Asia/Qyzylorda',dateStyle:'short',timeStyle:'medium'});
+ }catch{error.textContent='Не удалось получить статистику. Нажми «Обновить данные», чтобы повторить.';error.hidden=false;document.getElementById('state').textContent='Соединение временно недоступно';}
+ finally{busy=false;button.disabled=false}
+}
+document.getElementById('refresh').addEventListener('click',refresh);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});
+setInterval(()=>{if(!document.hidden)refresh()},15000);refresh();
+</script></body></html>

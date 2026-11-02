@@ -1,4 +1,8 @@
-import { integer, real, sqliteTable, text, index } from "drizzle-orm/sqlite-core";
+import { integer, real, sqliteTable, text, index, primaryKey } from "drizzle-orm/sqlite-core";
+
+export const portalRecords = sqliteTable("portal_records", {
+  collection: text("collection").notNull(), id: text("id").notNull(), value: text("value").notNull(), createdAt: integer("created_at").notNull(),
+}, table => [primaryKey({ columns: [table.collection, table.id] }), index("idx_portal_collection_time").on(table.collection, table.createdAt)]);
 
 const timestamps = {
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),

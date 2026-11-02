@@ -36,7 +36,7 @@ export function RiverScene({label,replayLabel}:{label:string;replayLabel:string}
         <path d="M-17 -7c8-11 14 11 22 0s14 11 22 0M-17 4c8-11 14 11 22 0s14 11 22 0" fill="none" stroke="var(--teal)" strokeWidth="3" transform="translate(-5 0)"/>
       </g>
     </motion.svg>
-    <div className="rp-art-heading"><span>RIVERPULSE</span><span>{label}</span></div>
+    <div className="rp-art-heading"><span>WATER GUARD</span><span>{label}</span></div>
     <div className="rp-art-footer"><span>WATER. LIFE. CONNECTION.</span><button type="button" className="rp-art-replay" aria-label={replayLabel} onClick={()=>setIteration(i=>i+1)}><RotateCcw size={17}/></button></div>
   </div>;
 }

@@ -22,6 +22,13 @@
       "when": 1791059413946,
       "tag": "0002_lonely_fenris",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1793636168121,
+      "tag": "0003_mighty_mercury",
+      "breakpoints": true
     }
   ]
 }
