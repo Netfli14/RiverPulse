@@ -5,7 +5,7 @@ import type {Language} from "@/lib/riverpulse-i18n";
 import {useRobot} from "@/components/robot-provider";
 export type StationStatus="normal"|"attention"|"risk"|"offline";
 export type WaterStation={id:string;name:Record<Language,string>;waterBody:Record<Language,string>;coordinates:[number,number];status:StationStatus};
-export const waterStations:WaterStation[]=[{id:"esil-central",name:{RU:"RC-01 · заданная точка",KZ:"RC-01 · берілген нүкте",EN:"RC-01 · assigned location"},waterBody:{RU:"Ишим (Есиль), Астана",KZ:"Есіл, Астана",EN:"Ishim (Esil), Astana"},coordinates:[71.4289,51.1555],status:"offline"}];
+export const waterStations:WaterStation[]=[{id:"esil-central",name:{RU:"RC-01 · заданная точка",KZ:"RC-01 · берілген нүкте",EN:"RC-01 · assigned location"},waterBody:{RU:"Ишим (Есиль), Астана",KZ:"Есіл, Астана",EN:"Ishim (Esil), Astana"},coordinates:[71.4264,51.1555],status:"offline"}];
 const text=(l:Language,ru:string,kz:string,en:string)=>l==="RU"?ru:l==="KZ"?kz:en;
 type MapApi={Map:new(el:HTMLElement,options:object)=>{panTo:(p:object)=>void};marker:{AdvancedMarkerElement:new(options:object)=>{position:object|null;map:unknown;title:string}};importLibrary:(name:string)=>Promise<unknown>};
 declare global {interface Window {google?:{maps:MapApi};riverpulseMapsReady?:()=>void;gm_authFailure?:()=>void}}
