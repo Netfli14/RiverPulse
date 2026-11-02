@@ -50,9 +50,9 @@ An administrator's real BLE/WSS readings are relayed at most once per five secon
 
 The separate `counter/` site reads aggregate counts from `/api/portal/stats` with CORS enabled. Each role counts a browser once; accounts and real reports have separate totals. The 30 demonstration reports never increase the real report count.
 
-The PDFs in `public/documents/` are unmodified source uploads. Full-page WebP previews, thumbnails and 100–300% zoom do not alter the PDFs. QR replacement is pending the user's supplied QR codes.
+The presentation contains the supplied replacement site and GitHub QR codes on slide 12. The poster contains its first page only. Full-page WebP previews, thumbnails and 100–300% zoom match these PDFs.
 
-The 32.7 MB presentation is stored in four binary parts in `source-documents/` for connector uploads. Every development and build command restores `/documents/Water-Guard-Station.pdf` and checks its original SHA-256. Downloaded PDF bytes are unchanged.
+The 32.7 MB presentation is stored in four binary parts in `source-documents/` for connector uploads. Every development and build command restores `/documents/Water-Guard-Station.pdf` and checks its expected SHA-256. Downloaded PDF bytes match the checked source parts.
 
 ## Routes
 
