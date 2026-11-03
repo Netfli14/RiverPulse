@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { digest, equalSecret, hashPortalPassword, readSession, SESSION_COOKIE, signSession, visitorId, VISITOR_COOKIE, type PortalRole } from "@/lib/portal-auth";
+import { assertSessionSigningConfigured, digest, equalSecret, hashPortalPassword, readSession, SESSION_COOKIE, signSession, visitorId, VISITOR_COOKIE, type PortalRole } from "@/lib/portal-auth";
 import { countRecords, getRecord, putRecord, type PortalRecord } from "@/lib/portal-storage";
 import { normalizeEmail } from "@/lib/user-auth";
 const headers = { "Cache-Control": "no-store" };
@@ -7,16 +7,25 @@ type Account = PortalRecord & { id: string; email: string; salt: string; hash: s
 export async function GET(request: NextRequest) { const session = await readSession(request); return NextResponse.json({ session: session ? { role: session.role, email: session.email } : null }, { headers }); }
 export async function POST(request: NextRequest) {
   const origin = request.headers.get("origin"), host = request.headers.get("x-forwarded-host") || request.headers.get("host");
-  if (origin && new URL(origin).host !== host) return NextResponse.json({ error: "forbidden" }, { status: 403, headers });
+  try {
+    if (origin && new URL(origin).host !== host) return NextResponse.json({ error: "forbidden" }, { status: 403, headers });
+  } catch { return NextResponse.json({ error: "forbidden" }, { status: 403, headers }); }
   const body = await request.json().catch(() => null) as { role?: PortalRole; action?: string; email?: unknown; password?: unknown; code?: unknown } | null;
   if (!body || !["user", "admin", "jury"].includes(body.role || "")) return NextResponse.json({ error: "invalid_input" }, { status: 400, headers });
   const role = body.role!, visitor = visitorId(request);
+  let stage = "session_setup";
   try {
+    // A broken signing configuration must never leave behind a new account.
+    await assertSessionSigningConfigured();
+    stage = "rate_limit_read";
     const ip = request.headers.get("x-vercel-forwarded-for") || request.headers.get("cf-connecting-ip") || request.headers.get("x-forwarded-for") || visitor;
     const bucket = await digest(`${ip}:${Math.floor(Date.now() / 300000)}`), attempts = `auth-limit:${bucket}`;
     if (await countRecords(attempts) >= 30) return NextResponse.json({ error: "rate_limited" }, { status: 429, headers });
+    stage = "rate_limit_write";
     await putRecord(attempts, crypto.randomUUID(), { createdAt: Date.now() }, true);
+    stage = "account";
     let id = visitor, email: string | undefined;
+    let pendingAccount: { key: string; record: Account } | null = null;
     if (role === "admin") {
       if (typeof body.code !== "string" || !equalSecret(body.code, process.env.WATERGUARD_ADMIN_CODE || "123")) return NextResponse.json({ error: "invalid_code" }, { status: 401, headers });
     } else if (role === "user") {
@@ -28,21 +37,35 @@ export async function POST(request: NextRequest) {
         if (account) return NextResponse.json({ error: "exists" }, { status: 409, headers });
         const salt = crypto.randomUUID();
         account = { id: crypto.randomUUID(), email, salt, hash: await hashPortalPassword(body.password, salt), createdAt: Date.now() };
-        if (!await putRecord("accounts", accountId, account, true)) return NextResponse.json({ error: "exists" }, { status: 409, headers });
+        pendingAccount = { key: accountId, record: account };
       } else {
         const hash = await hashPortalPassword(body.password, account?.salt || "missing-account-timing-salt");
         if (!account || !equalSecret(hash, account.hash)) return NextResponse.json({ error: "invalid_credentials" }, { status: 401, headers });
       }
       id = account!.id;
     }
+    stage = "session_sign";
     const token = await signSession({ role, id, email, expiresAt: Date.now() + 8 * 3600000 });
-    await putRecord(`entries:${role}`, visitor, { createdAt: Date.now(), role }, true);
-    await putRecord("visitors", visitor, { createdAt: Date.now() }, true);
+    if (pendingAccount) {
+      stage = "account_save";
+      if (!await putRecord("accounts", pendingAccount.key, pendingAccount.record, true)) return NextResponse.json({ error: "exists" }, { status: 409, headers });
+    }
+    stage = "session_cookie";
     const response = NextResponse.json({ ok: true, role, redirect: role === "user" ? "/dashboard" : role === "admin" ? "/operator" : "/map" }, { headers });
     const options = { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax" as const, path: "/" };
     response.cookies.set(SESSION_COOKIE, token, { ...options, maxAge: 8 * 3600 });
     response.cookies.set(VISITOR_COOKIE, visitor, { ...options, maxAge: 365 * 86400 });
+    // Analytics cannot turn successful registration into a reported failure.
+    try {
+      await Promise.all([
+        putRecord(`entries:${role}`, visitor, { createdAt: Date.now(), role }, true),
+        putRecord("visitors", visitor, { createdAt: Date.now() }, true),
+      ]);
+    } catch { console.warn("Water Guard entry counters unavailable"); }
     return response;
-  } catch { return NextResponse.json({ error: "unavailable" }, { status: 503, headers }); }
+  } catch {
+    console.error("Water Guard sign-in unavailable", { stage });
+    return NextResponse.json({ error: "unavailable", code: stage }, { status: 503, headers });
+  }
 }
 export async function DELETE() { const response = NextResponse.json({ ok: true }, { headers }); response.cookies.set(SESSION_COOKIE, "", { path: "/", maxAge: 0, httpOnly: true, sameSite: "lax" }); return response; }

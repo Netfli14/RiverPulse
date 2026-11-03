@@ -10,7 +10,11 @@ async function key() {
   if (!secret()) throw new Error("session_unconfigured");
   return crypto.subtle.importKey("raw", encoder.encode(secret()), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
 }
-export async function signSession(session: PortalSession) { const payload = btoa(JSON.stringify(session)); return `${payload}.${hex(await crypto.subtle.sign("HMAC", await key(), encoder.encode(payload)))}`; }
+export async function assertSessionSigningConfigured() { await key(); }
+export async function signSession(session: PortalSession) {
+  const payload = btoa(String.fromCharCode(...encoder.encode(JSON.stringify(session))));
+  return `${payload}.${hex(await crypto.subtle.sign("HMAC", await key(), encoder.encode(payload)))}`;
+}
 export async function readSession(request: NextRequest): Promise<PortalSession | null> {
   const token = request.cookies.get(SESSION_COOKIE)?.value;
   if (!token || !secret()) return null;
@@ -19,7 +23,7 @@ export async function readSession(request: NextRequest): Promise<PortalSession |
   try {
     const expected = hex(await crypto.subtle.sign("HMAC", await key(), encoder.encode(payload)));
     if (!equalSecret(signature, expected)) return null;
-    const session = JSON.parse(atob(payload)) as PortalSession;
+    const session = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(Uint8Array.from(atob(payload), char => char.charCodeAt(0)))) as PortalSession;
     return ["user", "admin", "jury"].includes(session.role) && typeof session.id === "string" && session.expiresAt > Date.now() ? session : null;
   } catch { return null; }
 }

@@ -42,8 +42,9 @@ export function RoleLogin({language, register}: {language: Language; register: b
       // visit and its role entry count the same browser.
       await bootstrapPortal();
       const response = await fetch("/api/portal/session", {method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify({role: chosen, action: register ? "register" : "login", email, password, code})});
-      const result = await response.json() as {ok?:boolean; redirect:string; error:string};
+      const result = await response.json() as {ok?:boolean; redirect:string; error:string; code?:string};
       if (response.ok && result.ok) {window.location.assign(result.redirect); return;}
+      if (response.status >= 500) console.error("Water Guard sign-in unavailable: " + (result.code || result.error));
       const messages: Record<string, string> = {
         invalid_code: copy(language,"Неверный код администратора.","Әкімші коды қате.","Incorrect administrator code."),
         exists: copy(language,"Этот email уже зарегистрирован. Войди в аккаунт.","Бұл email тіркелген. Аккаунтқа кіріңіз.","This email is already registered. Sign in instead."),

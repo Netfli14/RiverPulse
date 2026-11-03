@@ -50,10 +50,18 @@ An administrator's real BLE/WSS readings are relayed at most once per five secon
 
 The separate `counter/` site reads aggregate counts from `/api/portal/stats` with CORS enabled. Each role counts a browser once; accounts and real reports have separate totals. The 30 demonstration reports never increase the real report count.
 
-The PDFs in `public/documents/` are unmodified source uploads. Full-page WebP previews, thumbnails and 100–300% zoom do not alter the PDFs. QR replacement is pending the user's supplied QR codes.
+The presentation contains the supplied replacement site and GitHub QR codes on slide 12. The poster contains its first page only. Full-page WebP previews, thumbnails and 100–300% zoom match these PDFs.
 
-The 32.7 MB presentation is stored in four binary parts in `source-documents/` for connector uploads. Every development and build command restores `/documents/Water-Guard-Station.pdf` and checks its original SHA-256. Downloaded PDF bytes are unchanged.
+The 32.7 MB presentation is stored in four binary parts in `source-documents/` for connector uploads. Every development and build command restores `/documents/Water-Guard-Station.pdf` and checks its expected SHA-256. Downloaded PDF bytes match the checked source parts.
 
 ## Routes
 
 `/presentation`, `/poster`, `/`, `/map`, `/water/esil`, `/robots/rc-01`, `/analytics`, `/reports`, `/learn`, `/about`, `/dashboard`, `/operator`.
+
+## Registration recovery
+
+Live platform: https://water-guard-station.vercel.app/. The earlier river-pulse-five.vercel.app alias is no longer attached.
+
+Configure a separate server-only `PORTAL_SESSION_SECRET` for Production and Preview before deployment. Registration validates the signing configuration and signs a session before saving a new account. A failed signing step therefore leaves the email available for retry. Visitor-count failures are logged without failing an otherwise successful sign-in. Session encoding supports UTF-8 email addresses. Existing accounts created by an earlier failed registration can use the sign-in form with the original password.
+
+`tests/registration-flow.test.mjs` covers configuration failure and retry, signing failure before account creation, international email sessions, and unavailable counters.
