@@ -65,3 +65,7 @@ Live platform: https://water-guard-station.vercel.app/. The earlier river-pulse-
 Configure a separate server-only `PORTAL_SESSION_SECRET` for Production and Preview before deployment. Registration validates the signing configuration and signs a session before saving a new account. A failed signing step therefore leaves the email available for retry. Visitor-count failures are logged without failing an otherwise successful sign-in. Session encoding supports UTF-8 email addresses. Existing accounts created by an earlier failed registration can use the sign-in form with the original password.
 
 `tests/registration-flow.test.mjs` covers configuration failure and retry, signing failure before account creation, international email sessions, and unavailable counters.
+
+### Weekly river examples
+
+`/water/esil` and `/water/sarykol` show clearly labelled synthetic examples for 28 October–3 November 2026. Each river has seven daily values for temperature, pH, turbidity, dissolved oxygen and conductivity. These scenarios are not field measurements or evidence of robot trials. The CSV filename and each CSV row retain their demonstration provenance. No example rows are stored in the real telemetry service. RC-01 remains assigned to Ishim; Sarykol uses the team-provided coordinates (42.535650, 68.288398), without a robot or GPS claim. Real ESP32 readings remain in their own panel and log.

@@ -1,7 +1,7 @@
 // These views are already bundled into RiverPulseApp. Switching between them
 // does not need another server render or a new telemetry provider.
 export const APP_PATHS = [
-  "/", "/map", "/water/esil", "/robots/rc-01", "/analytics", "/reports",
+  "/", "/map", "/water/esil", "/water/sarykol", "/robots/rc-01", "/analytics", "/reports",
   "/learn", "/about", "/presentation", "/poster", "/login", "/register", "/dashboard", "/operator",
 ] as const;
 const paths = new Set<string>(APP_PATHS);

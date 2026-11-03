@@ -28,7 +28,7 @@ function browser(pathname='/'){
 }
 
 test('every public and protected RiverPulse view has a local destination',()=>{
-  assert.equal(APP_PATHS.length,14);
+  assert.ok(APP_PATHS.includes('/water/sarykol'));
   for(const pathname of APP_PATHS)assert.equal(appDestination(pathname,origin+'/'),pathname);
 });
 test('unrelated URLs, API endpoints, external links and anchors use normal browser navigation',()=>{
