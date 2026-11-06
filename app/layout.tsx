@@ -7,8 +7,8 @@ export const metadata: Metadata = {
   title: "Water Guard Station - мониторинг состояния воды",
   description: "Интерактивная платформа экологического мониторинга рек, предупреждений и работы RiverCleaner.",
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
+    icon: "/water-guard-icon.png",
+    shortcut: "/water-guard-icon.png",
   },
 };
 

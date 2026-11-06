@@ -4,8 +4,9 @@ import {useEffect,useState,type FormEvent} from "react";
 import {AppLink as Link} from "@/components/app-link";
 import {PageErrorBoundary} from "@/components/page-error-boundary";
 import {normalizeAppPath} from "@/lib/app-navigation";
+import Image from "next/image";
 import {usePathname} from "next/navigation";
-import {Bluetooth,Download,ExternalLink,FileText,Languages,LogOut,MapPin,Menu,Moon,RefreshCw,Search,Sun,Waves,Wifi,X} from "lucide-react";
+import {Bluetooth,Download,ExternalLink,FileText,Languages,LogOut,MapPin,Menu,Moon,RefreshCw,Search,Sun,Wifi,X} from "lucide-react";
 import {Activity,ArrowRight,ArrowUpRight,ChevronRight,Droplets,Leaf,Radio,RadioTower,ShieldCheck} from "lucide-react";
 import {AnimatePresence,MotionConfig,motion,useReducedMotion} from "framer-motion";
 import {PortalProvider,usePortal,RoleLogin,LogoutButton,ReportBoard,roleLabel} from "@/components/portal";
@@ -22,7 +23,7 @@ import type {Reading} from "@/lib/robot-protocol";
 const loc=(language:Language,ru:string,kz:string,en:string)=>language==="RU"?ru:language==="KZ"?kz:en;
 const routes=[["nav.home","/"],["nav.map","/map"],["nav.water","/water/esil"],["nav.robots","/robots/rc-01"],["nav.analytics","/analytics"],["nav.reports","/reports"],["nav.learn","/learn"],["nav.about","/about"]] as const;
 const value=(n:number|null|undefined,unit="")=>typeof n==="number"?`${n}${unit?" "+unit:""}`:"—";
-function Brand(){return <Link className="rp-brand" href="/"><span><Waves size={22}/></span>Water Guard</Link>}
+function Brand(){return <Link className="rp-brand" href="/"><Image src="/water-guard-logo.webp" alt="Water Guard" width={164} height={40} unoptimized/></Link>}
 function Header({language,setLanguage,theme,setTheme}:{language:Language;setLanguage:(l:Language)=>void;theme:string;setTheme:(s:string)=>void}){
  const [menu,setMenu]=useState(false);const path=usePathname();const {session}=usePortal();
  const activeRoute=(href:string)=>path===href||(href==="/water/esil"&&path.startsWith("/water/"));
