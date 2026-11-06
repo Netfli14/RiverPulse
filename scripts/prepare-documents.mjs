@@ -4,7 +4,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 // The source upload exceeds the connector's 16 MiB request limit. Store exact
 // binary parts in Git, then restore the static PDF before every build.
 const filename = "Water-Guard-Station.pdf";
-const expected = "13815bc2b68605862876b9e9ee8b6315372808ec2336c05af8b95a9e80ec1a05";
+const expected = "2a68cc842d6a61c652f5de67d233258ddf3a803be5aabca8aff4f10257913819";
 const output = new URL(`../public/documents/${filename}`, import.meta.url);
 const digest = (data) => createHash("sha256").update(data).digest("hex");
 

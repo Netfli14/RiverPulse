@@ -52,7 +52,7 @@ The separate `counter/` site reads aggregate counts from `/api/portal/stats` wit
 
 The presentation contains the supplied replacement site and GitHub QR codes on slide 12. The poster contains its first page only. Full-page WebP previews, thumbnails and 100–300% zoom match these PDFs.
 
-The 32.7 MB presentation is stored in four binary parts in `source-documents/` for connector uploads. Every development and build command restores `/documents/Water-Guard-Station.pdf` and checks its expected SHA-256. Downloaded PDF bytes match the checked source parts.
+The English presentation is stored in four binary parts in `source-documents/` for connector uploads. Every development and build command restores `/documents/Water-Guard-Station.pdf` and checks its expected SHA-256. Downloaded PDF bytes match the checked source parts.
 
 ## Routes
 
