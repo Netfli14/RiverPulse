@@ -19,6 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru" suppressHydrationWarning>
+      <head><link rel="preload" href="/fonts/inter-variable.woff" as="font" type="font/woff" crossOrigin="anonymous" /></head>
       <body className="antialiased"><RobotProvider>{children}</RobotProvider></body>
     </html>
   );

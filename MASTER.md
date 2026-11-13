@@ -1,48 +1,61 @@
 # Water Guard Station design system
 
-Scope: full visual redesign explicitly requested by the user, preserving all routes, auth, BLE GATT, firmware, packet validation, STOP acknowledgements, WSS, HTTPS ingestion, Google Maps and camera/YOLO protocols from GitHub commit 180bc12.
+RiverPulse / Water Guard is an environmental monitoring platform for the team, robot operators, residents and jury guests. Its primary tasks are viewing received measurements, locating the robot, reporting pollution and operating RC-01. The homepage explains the project; the operational screens prioritise clear controls and readings.
 
-Visual direction: an environmental field platform with a milk ground, forest headings, turquoise actions, sand sections, terracotta highlights and a chestnut footer. Use the exact supplied palette. A generous asymmetric opening leads directly to the real device workspace. No generated metrics, placeholder graphs or invented water-quality assessments.
-
-Audience assumption: the RiverPulse team, robot operators and people viewing river measurements. The primary tasks are connecting RC-01 and observing received readings.
-
-Allowed patterns: the user-supplied warm milk background; large sans-serif headings; line separators on actual sensor rows and measurement tables; a single abstract river contour illustration (explicitly artistic, not a chart or geographic map); real connection status indicators; a faint technical label on the river illustration; finite line drawing and replay; numeric sensor cards; route and scroll reveals. No decorative status loops, gradients, glowing blobs, fake dashboards or empty decorative tiles.
+The November 2026 refinement follows the user's request for more depth, the newly supplied design rules, two harmonious colours and one contrasting accent. Preserve the existing brand, factual content, role destinations and hardware behaviour.
 
 ## Colour tokens
 
 | Token | Value | Role |
 | --- | --- | --- |
-| teal | #31798C | Primary buttons and links |
-| sand | #D2D0BB | Supporting sections and landscape |
-| forest | #254A0F | Headings and icons |
-| chestnut | #412010 | Footer, dark blocks, dark theme |
-| milk | #F7F6EE | Main background |
-| white | #FFFFFF | Panels |
-| terracotta | #C9825C | Decorative accent, warnings with dark text |
-| ink | #252C26 | Body text |
+| teal | #31798C | Water tone, links and operational actions |
+| forest | #123D48 | Related dark water tone, headings and system section |
+| chestnut | #102F38 | Deep water tone for the footer |
+| sand | #D8E2DC | Neutral supporting surfaces and light text on dark water |
+| milk | #F4F5EF | Light page ground |
+| white | #FFFFFF | Panels and action text |
+| terracotta | #F0764F | Contrasting orange accents |
+| action | #B84727 | Darker orange for accessible white-text homepage action |
+| ink | #18363D | Body text |
 
-Public existing semantic token names stay. Their values change to these colours and colour-mix derivatives. Light is the default; the existing theme switch and saved preference remain supported.
+Public semantic token names remain compatible. Light is the default, with the existing saved dark-theme preference and switch supported. Neutral variants use colour-mix. Operational controls retain their existing meaning.
 
-## Type
+## Typography and layout
 
-Locally available Arial/Helvetica/Segoe UI sans-serif; no network font requirement. Cyrillic and Kazakh support take precedence. Hero 48–88px, page heading 32–62px, section heading 28–46px, body 16–18px with 1.55–1.7 line height, labels 12–14px. Numeric readings use tabular figures. Never monospace for body copy.
+Inter is self-hosted at /fonts/inter-variable.woff under the included SIL Open Font License. Its subset contains Latin, Cyrillic and all Kazakh letters. No third-party font service is required. Body text uses a sans-serif stack and data uses tabular numerals. Display size is at most 88px on changed surfaces; tracking stops at -.04em.
 
-## Layout and components
+The shell remains at most 1440px with responsive 20–64px gutters. Homepage sections have generous separation; related copy and actions stay together. Panel corners are 16px, existing buttons 12px, and the hero's large curved corner belongs to the river scene rather than ordinary cards. Controls retain their semantic links, buttons, tabs, form labels and visible focus states. Touch targets are at least 44px except inherited document-viewer controls. The guest desktop header uses one row; mobile retains expandable navigation.
 
-Spacing: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, 96px. Shell maximum 1440px; horizontal gutters 20–64px. Corners 8px for inputs, 12px for buttons, 20px for panels, 28px for river art. No floating cards or heavy shadows. Touch targets at least 44px. Responsive stacks at 1000, 760 and 480px.
+Depth comes from actual photographic objects overlapping their background and soft shadows with a downward offset. Data panels use a single border rather than shadow and border together. Screens stack below 760px; 1100px and 400px refine density and scale.
 
-Primary buttons: white on teal; hover darkens teal; focus uses a clearly visible outline; active moves 1px; disabled reduces opacity and never accepts input. Secondary buttons use outlined ink. Controls are normal semantic buttons, links, inputs and details. All form names and existing validation remain.
+## Assets and allowed patterns
+
+Allowed patterns: actual RC-01 and station photographs extracted with their original alpha masks from the supplied English presentation; the supplied Ishim photograph; geometric river linework; a water plane beneath the robot; offset soft shadows on physical photo objects; overlapping photos; a dark system section; the existing interactive halftone footer; separators between role choices and actual data rows.
+
+Asset provenance:
+
+- `rivercleaner-prototype.webp`: embedded robot photograph from presentation page 3.
+- `station-prototype.webp`: embedded station photograph from presentation page 1.
+- `ishim-field-test.jpg`: embedded Ishim photograph from presentation page 7; caption identifies the river and city without inventing a test date.
+
+Do not add generated hardware, unlabelled synthetic readings, decorative status lights, glass panels, background grids, invented claims or perpetual decorative motion. Keep the real logo and favicon. The presentation and poster remain byte-for-byte unchanged.
 
 ## Motion
 
-Genjutsu source: https://github.com/AThevon/genjutsu (installed adapted bundle). Loaded modules: motion-principles, mobile-principles, framer-motion, tells + web reference, design-audit.
+Use existing Framer Motion and native CSS; no new runtime dependencies.
 
-Micro interactions 150ms; UI feedback 200–280ms; section reveals 480ms; river line drawing 2.2s once with replay; no perpetual decorative loops. Standard easing cubic-bezier(.2,0,0,1). Animate transform and opacity; SVG pathLength is used only for the river drawing. Reduced motion disables translation, scroll parallax and drawing. MotionConfig applies the user preference globally. Connection provider stays outside route animations; no animation can delay notifications, packet processing or STOP.
+- The robot has one 850ms arrival using cubic-bezier(.16,1,.3,1).
+- Pointer rotation is limited to 2.5 degrees per axis, using motion values and springs with stiffness 180 and damping 28. Movement does not update React state. Mouse leave and pointer cancellation reset the pose; touch does not drive it.
+- Reduced motion removes arrival and pointer rotation. Copy and actions are visible by default, independent of any entrance animation.
+- Inherited operational micro interactions use 150ms; UI feedback uses 200–280ms. Existing section reveals, river-line replay and halftone-footer behaviour remain supported outside the revised homepage.
+- Animate transform and opacity for new motion. No perpetual homepage motion, layout-property animation, or persistent will-change.
 
-## Content
+The robot provider remains outside route animations. Animation must never delay packets, notifications or STOP commands.
 
-Keep RU/KZ/EN, theme switch, account/role controls, report drafts and exports. Primary header focuses on map, monitoring and robot; reports, analytics and learning remain accessible. Until data arrives, show a short explanation and a dash; preserve last readings and flag stale data after 15 seconds. Show source and actual receive time. No displayed simulation data. The homepage live section is the real provider, not a mockup.
+## Functional constraints
 
-## Water Guard portal extension
+Preserve all existing routes, language switching (RU/KZ/EN), theme switching, user/admin/jury roles, account/session logic, report drafts and exports, visitor counter, both rivers and their labelled example weeks. Real telemetry must remain distinct from synthetic examples; missing readings stay empty and stale readings stay flagged.
 
-User-requested motion: a full, uncropped Water Guard Station halftone wordmark responds to the pointer and taps in the footer. Keep the supplied warm palette, real prototype photograph, finite title and section reveals. Native canvas sleeps when idle and offscreen; reduced motion draws a static wordmark. The opening introduces the project and offers user, admin and jury access. Role transitions use 220 ms easing; title reveal uses 700 ms once on entry. PDF pages use their original full 16:9 bounds and independent zoom controls. The 30 complaint examples are visibly marked as demonstration records.
+Do not change ESP32 BLE GATT, firmware, packet validation, STOP acknowledgements, WSS, authenticated HTTP ingestion, Google Maps, camera/YOLO, stored data, original PDFs or QR destinations for a visual task.
+
+See `docs/DESIGN_REVIEW.md` for checks and limits.

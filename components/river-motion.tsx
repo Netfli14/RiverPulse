@@ -1,8 +1,39 @@
 "use client";
 
-import {useRef,useState,type ReactNode} from "react";
-import {motion,useReducedMotion,useScroll,useTransform} from "framer-motion";
+import {useRef,useState,type ReactNode,type PointerEvent} from "react";
+import {motion,useMotionValue,useReducedMotion,useScroll,useSpring,useTransform} from "framer-motion";
 import {RotateCcw} from "lucide-react";
+import type {Language} from "@/lib/riverpulse-i18n";
+import {copy} from "@/components/portal";
+
+export function PrototypeScene({language}:{language:Language}) {
+  const reduce=useReducedMotion();
+  const x=useMotionValue(0),y=useMotionValue(0);
+  const rotateX=useSpring(x,{stiffness:180,damping:28});
+  const rotateY=useSpring(y,{stiffness:180,damping:28});
+  const move=(event:PointerEvent<HTMLElement>)=>{
+    if(reduce||event.pointerType!=="mouse")return;
+    const rect=event.currentTarget.getBoundingClientRect();
+    x.set(-(event.clientY-rect.top-rect.height/2)/rect.height*5);
+    y.set((event.clientX-rect.left-rect.width/2)/rect.width*5);
+  };
+  const reset=()=>{x.set(0);y.set(0)};
+  return <figure className="wg-prototype-scene" onPointerMove={move} onPointerLeave={reset} onPointerCancel={reset}>
+    <div className="wg-prototype-backdrop" aria-hidden="true">
+      <svg viewBox="0 0 600 620" preserveAspectRatio="xMidYMid slice">
+        {Array.from({length:9},(_,i)=><path key={i} d={`M ${-190+i*26} 720 C ${530+i*14} 615,${-160+i*19} 338,${370+i*23} 215 S ${410+i*22} 30,${740+i*26} -90`} />)}
+      </svg>
+      <span className="wg-water-plane"/>
+    </div>
+    <motion.div className="wg-prototype-object" style={{rotateX:reduce?0:rotateX,rotateY:reduce?0:rotateY}}>
+      <img className="wg-prototype-robot" src="/assets/rivercleaner-prototype.webp" width={960} height={720} fetchPriority="high" alt={copy(language,"Реальный прототип RiverCleaner RC-01 с транспортёром для сбора мусора","Қоқыс жинайтын конвейері бар RiverCleaner RC-01 нақты прототипі","The RiverCleaner RC-01 prototype with its litter collection conveyor")}/>
+    </motion.div>
+    <figcaption className="wg-prototype-caption">
+      <span><b>RiverCleaner</b><span>RC-01</span></span>
+      <p>{copy(language,"Разработано и испытано командой","Команда әзірлеп, сынаған","Built and field-tested by the team")}</p>
+    </figcaption>
+  </figure>;
+}
 
 // Motion patterns adapted from AThevon/genjutsu: motion-principles and framer-motion.
 export function Reveal({children,className="",delay=0}:{children:ReactNode;className?:string;delay?:number}) {
