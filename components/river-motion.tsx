@@ -1,38 +1,119 @@
 "use client";
 
-import {useRef,useState,type ReactNode,type PointerEvent} from "react";
+import {useRef,useState,useSyncExternalStore,type ReactNode,type PointerEvent,type KeyboardEvent} from "react";
 import {motion,useMotionValue,useReducedMotion,useScroll,useSpring,useTransform} from "framer-motion";
-import {RotateCcw} from "lucide-react";
+import {Camera,Gauge,MessagesSquare,RotateCcw,Trash2} from "lucide-react";
 import type {Language} from "@/lib/riverpulse-i18n";
 import {copy} from "@/components/portal";
 
+export const riverEase = [.16,1,.3,1] as const;
+
+const desktopQuery="(min-width: 761px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)";
+function subscribeDesktop(notify:()=>void) {
+  const query=window.matchMedia(desktopQuery);
+  query.addEventListener("change",notify);
+  return ()=>query.removeEventListener("change",notify);
+}
+const readDesktop=()=>window.matchMedia(desktopQuery).matches;
+const serverDesktop=()=>false;
+function useDesktopMotion() {
+  return useSyncExternalStore(subscribeDesktop,readDesktop,serverDesktop);
+}
+
 export function PrototypeScene({language}:{language:Language}) {
   const reduce=useReducedMotion();
+  const desktop=useDesktopMotion();
+  const ref=useRef<HTMLElement>(null);
+  const [iteration,setIteration]=useState(0);
   const x=useMotionValue(0),y=useMotionValue(0);
   const rotateX=useSpring(x,{stiffness:180,damping:28});
   const rotateY=useSpring(y,{stiffness:180,damping:28});
+  const {scrollYProgress}=useScroll({target:ref,offset:["start start","end start"]});
+  const foregroundY=useTransform(scrollYProgress,[0,1],[0,32]);
+  const backgroundY=useTransform(scrollYProgress,[0,1],[0,-12]);
   const move=(event:PointerEvent<HTMLElement>)=>{
-    if(reduce||event.pointerType!=="mouse")return;
+    if(!desktop||event.pointerType!=="mouse")return;
     const rect=event.currentTarget.getBoundingClientRect();
     x.set(-(event.clientY-rect.top-rect.height/2)/rect.height*5);
     y.set((event.clientX-rect.left-rect.width/2)/rect.width*5);
   };
   const reset=()=>{x.set(0);y.set(0)};
-  return <figure className="wg-prototype-scene" onPointerMove={move} onPointerLeave={reset} onPointerCancel={reset}>
+  return <figure ref={ref} className="wg-prototype-scene" onPointerMove={move} onPointerLeave={reset} onPointerCancel={reset}>
     <div className="wg-prototype-backdrop" aria-hidden="true">
-      <svg viewBox="0 0 600 620" preserveAspectRatio="xMidYMid slice">
+      <motion.svg viewBox="0 0 600 620" preserveAspectRatio="xMidYMid slice" style={{y:desktop?backgroundY:0}}>
         {Array.from({length:9},(_,i)=><path key={i} d={`M ${-190+i*26} 720 C ${530+i*14} 615,${-160+i*19} 338,${370+i*23} 215 S ${410+i*22} 30,${740+i*26} -90`} />)}
-      </svg>
+        <g key={iteration} className="wg-current-traces">
+          {[0,1].map(i=><path key={i} d={`M ${-112+i*76} 720 C ${572+i*28} 615,${-103+i*38} 338,${439+i*40} 215 S ${476+i*44} 30,${818+i*52} -90`} />)}
+        </g>
+      </motion.svg>
       <span className="wg-water-plane"/>
     </div>
-    <motion.div className="wg-prototype-object" style={{rotateX:reduce?0:rotateX,rotateY:reduce?0:rotateY}}>
+    <motion.div className="wg-prototype-object" style={{rotateX:desktop?rotateX:0,rotateY:desktop?rotateY:0,y:desktop?foregroundY:0}}>
+      <div key={iteration} className="wg-prototype-arrival">
       <img className="wg-prototype-robot" src="/assets/rivercleaner-prototype.webp" width={960} height={720} fetchPriority="high" alt={copy(language,"Реальный прототип RiverCleaner RC-01 с транспортёром для сбора мусора","Қоқыс жинайтын конвейері бар RiverCleaner RC-01 нақты прототипі","The RiverCleaner RC-01 prototype with its litter collection conveyor")}/>
+      </div>
     </motion.div>
+    {!reduce&&<button className="wg-scene-replay" type="button" onClick={()=>{reset();setIteration(i=>i+1)}} aria-label={copy(language,"Повторить анимацию робота","Робот анимациясын қайталау","Replay the robot animation")} title={copy(language,"Повторить анимацию","Анимацияны қайталау","Replay animation")}><RotateCcw size={17} aria-hidden="true"/></button>}
     <figcaption className="wg-prototype-caption">
       <span><b>RiverCleaner</b><span>RC-01</span></span>
       <p>{copy(language,"Разработано и испытано командой","Команда әзірлеп, сынаған","Built and field-tested by the team")}</p>
     </figcaption>
   </figure>;
+}
+
+export function FieldPhotos({language}:{language:Language}) {
+  const ref=useRef<HTMLDivElement>(null);
+  const desktop=useDesktopMotion();
+  const {scrollYProgress}=useScroll({target:ref,offset:["start end","end start"]});
+  const riverY=useTransform(scrollYProgress,[0,1],[14,-14]);
+  const stationY=useTransform(scrollYProgress,[0,1],[28,-28]);
+  return <div ref={ref} className="wg-field-images">
+    <motion.figure className="wg-river-photo" style={{y:desktop?riverY:0,rotate:-4}}>
+      <img src="/assets/ishim-field-test.jpg" width={520} height={368} loading="lazy" alt={copy(language,"Река Ишим в Астане","Астанадағы Есіл өзені","The Ishim River in Astana")}/>
+      <figcaption>{copy(language,"Ишим · Астана","Есіл · Астана","Ishim · Astana")}</figcaption>
+    </motion.figure>
+    <motion.figure className="wg-station-photo" style={{y:desktop?stationY:0,rotate:5}}>
+      <img src="/assets/station-prototype.webp" width={780} height={855} loading="lazy" alt={copy(language,"Прототип станции Water Guard с солнечной панелью и ESP32","Күн панелі мен ESP32 бар Water Guard станциясының прототипі","The Water Guard station prototype with its solar panel and ESP32")}/>
+      <figcaption>{copy(language,"Станция Water Guard","Water Guard станциясы","Water Guard station")}</figcaption>
+    </motion.figure>
+  </div>;
+}
+
+export function SystemFlow({language}:{language:Language}) {
+  const [active,setActive]=useState(0);
+  const reduce=useReducedMotion();
+  const buttons=useRef<(HTMLButtonElement|null)[]>([]);
+  const icons=[Camera,Gauge,Trash2,MessagesSquare];
+  const labels=[copy(language,"Наблюдение","Бақылау","Observe"),copy(language,"Измерение","Өлшеу","Measure"),copy(language,"Сбор мусора","Қоқыс жинау","Collect"),copy(language,"Действие","Әрекет","Act")];
+  const details=[
+    copy(language,"Камера помогает заметить плавающий мусор.","Камера қалқымалы қоқысты байқауға көмектеседі.","The camera helps spot floating litter."),
+    copy(language,"Датчики передают измерения.","Датчиктер өлшемдерді жібереді.","Sensors report measurements."),
+    copy(language,"Робот собирает отходы.","Робот қалдықтарды жинайды.","The robot collects waste."),
+    copy(language,"Платформа объединяет наблюдения и обращения жителей.","Платформа бақылаулар мен тұрғындардың өтініштерін біріктіреді.","The platform brings observations and community reports together."),
+  ];
+  function navigate(event:KeyboardEvent<HTMLButtonElement>,index:number) {
+    let next=index;
+    if(event.key==="ArrowRight")next=(index+1)%4;
+    else if(event.key==="ArrowLeft")next=(index+3)%4;
+    else if(event.key==="Home")next=0;
+    else if(event.key==="End")next=3;
+    else return;
+    event.preventDefault();setActive(next);buttons.current[next]?.focus();
+  }
+  return <div className="wg-flow">
+    <div className="wg-process" role="tablist" aria-label={copy(language,"Как работает Water Guard","Water Guard қалай жұмыс істейді","How Water Guard works")}>
+      <div className="wg-process-track" aria-hidden="true"><motion.span initial={false} animate={{scaleX:active/3}} transition={{duration:reduce?0:.42,ease:riverEase}}/></div>
+      {labels.map((label,i)=>{
+        const Icon=icons[i];
+        return <button key={i} ref={node=>{buttons.current[i]=node}} id={`wg-process-tab-${i}`} type="button" role="tab" aria-selected={active===i} aria-controls="wg-process-panel" tabIndex={active===i?0:-1} onClick={()=>setActive(i)} onKeyDown={event=>navigate(event,i)}>
+          <span className="wg-process-icon"><Icon size={21} aria-hidden="true"/></span><span>{label}</span>
+        </button>;
+      })}
+    </div>
+    <div className="wg-flow-detail" role="tabpanel" id="wg-process-panel" aria-labelledby={`wg-process-tab-${active}`} aria-live="polite" tabIndex={0}>
+      <motion.p key={`${active}-${language}`} initial={reduce?false:{opacity:.4,y:6}} animate={{opacity:1,y:0}} transition={{duration:reduce?0:.26,ease:riverEase}}>{details[active]}</motion.p>
+    </div>
+  </div>;
 }
 
 // Motion patterns adapted from AThevon/genjutsu: motion-principles and framer-motion.
