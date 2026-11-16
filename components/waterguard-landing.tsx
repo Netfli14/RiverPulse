@@ -3,7 +3,8 @@
 import { type ReactNode } from "react";
 import { ArrowRight, ArrowUpRight, RadioTower, ShieldCheck, UserRound, Users } from "lucide-react";
 import { AppLink as Link } from "@/components/app-link";
-import { FieldPhotos, PrototypeScene, SystemFlow } from "@/components/river-motion";
+import { PrototypeScene } from "@/components/river-motion";
+import { MotionBlock, MotionHeading, RiverPassage, SystemStory } from "@/components/waterguard-story";
 import type { Language } from "@/lib/riverpulse-i18n";
 import { copy, usePortal } from "@/components/portal";
 
@@ -41,33 +42,31 @@ export function WaterGuardLanding({ language, footer }: { language: Language; fo
         <PrototypeScene language={language} />
       </section>
 
-      <section className="wg-mission" id="system" aria-labelledby="wg-system-title">
-        <div className="shell wg-system-layout">
-          <FieldPhotos language={language} />
-          <div className="wg-mission-content">
-            <h2 id="wg-system-title">{copy(language, "От первого сигнала\nдо чистой воды.", "Алғашқы сигналдан\nтаза суға дейін.", "From the first signal\nto a cleaner river.")}</h2>
-            <SystemFlow language={language} />
-          </div>
+      <RiverPassage language={language} />
+      <section className="wg-mission wg-motion-mission" id="system" aria-labelledby="wg-system-title">
+        <div className="shell">
+          <MotionHeading id="wg-system-title">{copy(language, "От первого сигнала\nдо чистой воды.", "Алғашқы сигналдан\nтаза суға дейін.", "From the first signal\nto a cleaner river.")}</MotionHeading>
+          <SystemStory language={language} />
         </div>
       </section>
 
       <section className="wg-join shell" id="join" aria-labelledby="wg-join-title">
         <div className="wg-join-intro">
-          <h2 id="wg-join-title">{copy(language, "Одна река.\nРазные возможности.", "Бір өзен.\nӘртүрлі мүмкіндіктер.", "One river.\nDifferent ways to help.")}</h2>
+          <MotionHeading id="wg-join-title">{copy(language, "Одна река.\nРазные возможности.", "Бір өзен.\nӘртүрлі мүмкіндіктер.", "One river.\nDifferent ways to help.")}</MotionHeading>
           <p>{copy(language, "Заметить. Собрать. Сохранить.", "Байқау. Жинау. Сақтау.", "Detect. Collect. Protect.")}</p>
         </div>
         <div className="wg-role-list">
           {(["user", "admin", "jury"] as const).map((role, i) => {
             const Icon = [UserRound, ShieldCheck, Users][i];
             return (
-              <Link key={role} href={`/register?role=${role}`} className="wg-role-row">
+              <MotionBlock key={role} delay={i * .07}><Link href={`/register?role=${role}`} className="wg-role-row">
                 <span className="wg-role-icon"><Icon size={24} aria-hidden="true" /></span>
                 <div>
                   <h3>{role === "user" ? copy(language, "Я пользователь", "Мен пайдаланушымын", "I'm a user") : role === "admin" ? copy(language, "Я администратор", "Мен әкімшімін", "I'm an administrator") : copy(language, "Я из жюри", "Мен қазылар алқасынанмын", "I'm a jury guest")}</h3>
                   <p>{role === "user" ? copy(language, "Данные воды и отправка обращений.", "Су деректері және өтініш жіберу.", "Water readings and pollution reports.") : role === "admin" ? copy(language, "Данные, управление и 30 примеров обращений. Вход по коду.", "Деректер, басқару және 30 өтініш мысалы. Кодпен кіру.", "Data, controls and 30 example reports. Access by code.") : copy(language, "Весь проект, презентация и постер. Без регистрации.", "Толық жоба, таныстырылым және постер. Тіркеусіз.", "The project, presentation and poster. No account required.")}</p>
                 </div>
                 <ArrowUpRight size={23} aria-hidden="true" />
-              </Link>
+              </Link></MotionBlock>
             );
           })}
         </div>

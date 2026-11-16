@@ -32,3 +32,34 @@ Modules loaded for implementation: motion-principles, mobile-principles, framer-
 | OS reduced-motion runtime | Enable the operating system's Reduce Motion setting and repeat entry and pointer movement. The source guard was checked; the OS setting was not controlled. |
 
 The fresh local preview lacks production session/storage configuration, so authenticated routes were not validated there. Existing auth tests passed; production account registration was not exercised using a new real account.
+
+## 16 November: expanded motion design
+
+The requested direction is stronger choreography around the real RC-01 prototype and the water-to-action process. Allowed patterns: the existing two water colours and orange accent, real prototype photographs, finite water rings, scroll-driven river paths, kinetic headings, a sticky process illustration, a four-stage progress rail and labelled explanatory SVG drawings. No new runtime dependencies or telemetry-like sample values were added.
+
+### Checked with evidence
+
+| Check | Result and evidence |
+| --- | --- |
+| Robot depth and choreography | `components/river-motion.tsx:34` maps scroll to 92px photo movement, -54px river movement and -7 degrees photo rotation. Pointer limits and springs are preserved. |
+| Story state and rendering | `components/waterguard-story.tsx:118` uses motion values for progress. A ref prevents React state changes except when crossing stage boundaries. Browser scroll changed the selected phase to 2 and displayed the collection diagram. |
+| Story photo and diagram exits | `components/waterguard-story.tsx:88` and `:99` use AnimatePresence; scene photos fade out in 200ms and schematic content in 160ms. Step icons also crossfade on completion. |
+| Heading reveals | `components/waterguard-story.tsx:31` observes the stationary heading, then moves its child lines. An initial clipped-child observation bug was found and fixed; the mobile screenshot displayed both lines after scrolling. |
+| Mobile stage controls | A real 375px iframe changed to phase 1 with only `wg-story-step-1` visible; pressing Enter on the action button changed it to phase 3. |
+| Responsive width | Real application iframes at 375 / 768 / 1024 / 1440px had client widths 365 / 758 / 1014 / 1430px respectively, with matching document scroll widths. The 10px difference is the browser scrollbar. |
+| Languages and themes | RU and EN layouts were inspected; a 375px KZ frame retained equal document/client width and translated stage controls. The real theme control switched between dark and light surfaces. |
+| Reduced motion in source | `useReducedMotion`, `useDesktopMotion` and `app/waterguard.css:323` remove transforms, photo zoom, entrance sequences and the pinned interval. Stage buttons remain available. |
+| Animation properties and focus | Static hygiene audit found no animated layout properties, no outline removal and no broad will-change. The new stage controls define normal, hover, pressed, active and focus-visible states. They are never disabled because every stage is available. |
+| Contrast | Milk on dark water = 10.72:1; sand on chestnut = 10.66:1. The initial active-button text colour was darkened to chestnut for sufficient contrast against orange. |
+| Build and regression boundary | TypeScript and the Next.js production build passed. All 32 existing tests passed. The diff contains homepage presentation files and design documentation only; BLE, camera, APIs, authentication, river data, PDFs and robot providers are unchanged. |
+
+The static tells audit introduced no fabricated metrics, perpetual decorative loops, glow, glass or placeholder identities. Its RC-01 finding is the real device ID. Existing loading spinners, an inherited data separator and broad decorative-motion warnings are unchanged; informative images/text must remain in the accessibility tree, and decorative SVG ancestors already have aria-hidden. The hover-transition finding for the new stage button is a detector limitation: the base button rule declares its colour, background and border transitions.
+
+Two observed issues were fixed: clipped heading reveals and active-button text contrast. Responsive checks, stage controls and the heading correction were checked in the browser. No application errors were observed; extension-metadata errors in the console came from a chrome-extension URL.
+
+### Not verified
+
+Frame time and physical hardware remain unverified. To measure frame time, record the hero and story in Chrome DevTools > Performance, including CPU throttling; target 16.7ms at 60Hz. To verify the reduced-motion runtime, enable the OS preference and repeat scrolling and stage selection. No profiler trace or OS preference emulation was collected. Production account creation was outside this visual change.
+
+Modules loaded: motion-principles, mobile-principles, framer-motion, css-native, tells with web reference, design-audit.
+Modules not loaded: none required by this implementation.

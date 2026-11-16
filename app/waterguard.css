@@ -213,3 +213,124 @@
  .wg-prototype-backdrop svg,.wg-role-icon,.wg-scene-replay,.rp-button>svg,.wg-process-icon {transform:none!important}
  .wg-process>button,.wg-process-icon,.wg-role-icon,.wg-role-row,.wg-scene-replay,.rp-icon-button,.rp-tabs,.rp-button>svg {transition-duration:0ms}
 }
+
+/* Scroll-led river story. All sequences are finite or directly follow input. */
+.wg-prototype-scroll-pose {width:100%;height:100%}
+.wg-water-surface {position:absolute;left:3%;right:-3%;bottom:82px;height:170px;transform:rotate(-12deg)}
+.wg-water-surface svg {position:static;width:100%;height:100%;stroke:var(--sand);stroke-width:1;opacity:.42}
+.wg-water-surface ellipse {transform-box:fill-box;transform-origin:center;fill:none}
+.wg-river-passage {position:relative;isolation:isolate;overflow:clip;padding-block:58px 68px}
+.wg-river-passage>svg {position:absolute;inset:0;width:100%;height:100%;z-index:-1;fill:none;stroke:var(--teal);stroke-width:1;opacity:.2}
+.wg-river-passage .wg-passage-current {stroke:var(--action);stroke-width:3}
+.wg-river-passage p {color:var(--heading);font-size:clamp(28px,4.3vw,62px);font-weight:600;letter-spacing:-.035em;line-height:1.2;margin:0;white-space:nowrap}
+.wg-motion-mission {padding-block:88px 64px}
+.wg-heading-mask {display:block;overflow:clip;padding-bottom:.09em;margin-bottom:-.09em}
+.wg-heading-mask>span {display:block;transform-origin:left bottom}
+.wg-story {position:relative;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:clamp(48px,7.5vw,120px);align-items:start;margin-top:56px}
+.wg-story-stage {min-width:0}
+.wg-story[data-scroll=true] .wg-story-stage {position:sticky;top:104px}
+.rp-header:not(.rp-header-guest)+.rp-route-view .wg-story[data-scroll=true] .wg-story-stage {top:154px}
+.wg-story-controls {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-bottom:16px}
+.wg-story-controls>button {display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;min-height:66px;padding:10px 4px;background:transparent;border:1px solid color-mix(in srgb,var(--sand) 28%,transparent);border-radius:10px;font-size:11px;line-height:1.4;color:var(--sand);transition:background 180ms var(--ease),border-color 180ms var(--ease),color 180ms var(--ease),transform 180ms var(--ease)}
+.wg-story-controls>button[aria-pressed=true] {background:var(--terracotta);border-color:var(--terracotta);color:var(--chestnut)}
+.wg-story-controls>button:active {transform:scale(.96)}
+.wg-story-controls>button:focus-visible {outline:3px solid var(--milk);outline-offset:3px}
+.wg-story-visual {position:relative;isolation:isolate;height:clamp(360px,53svh,510px);overflow:hidden;border-radius:16px;background:var(--chestnut)}
+.wg-story-river {position:absolute;inset:0 0 110px;overflow:hidden;background:var(--teal)}
+.wg-story-river img {display:block;width:100%;height:100%;object-fit:cover;opacity:.62;transform:scale(1.08);transition:transform 900ms cubic-bezier(.16,1,.3,1)}
+.wg-story-visual[data-phase="1"] .wg-story-river img {transform:scale(1.15) translateY(-2%)}
+.wg-story-visual[data-phase="2"] .wg-story-river img {transform:scale(1.08) translateX(-2%)}
+.wg-story-photo-caption {position:absolute;top:18px;left:20px;color:var(--milk);font-size:11px;line-height:1.5;background:var(--deep-water);padding:7px 10px;border-radius:5px}
+.wg-story-hardware {position:absolute;left:0;right:0;top:28px;bottom:144px;pointer-events:none}
+.wg-story-hardware img {width:100%;height:100%;object-fit:contain;filter:drop-shadow(6px 20px 16px color-mix(in srgb,var(--chestnut) 48%,transparent))}
+.wg-story-hardware.is-station {left:27%;right:27%;top:20px;bottom:142px}
+.wg-story-signal {position:absolute;left:0;right:0;bottom:0;height:170px;padding:16px 24px 14px;background:var(--chestnut);color:var(--milk);border-top:1px solid color-mix(in srgb,var(--sand) 30%,transparent)}
+.wg-story-schematic {font-size:10px;color:var(--sand);line-height:1.5}
+.wg-story-graphic {height:80px}
+.wg-signal-drawing {display:block;width:100%;height:80px;stroke:var(--sand);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.wg-signal-drawing .wg-signal-baseline {opacity:.2;stroke-width:1}
+.wg-signal-drawing .wg-signal-accent {stroke:var(--terracotta);stroke-width:2.5}
+.wg-signal-drawing .wg-signal-node {fill:var(--chestnut)}
+.wg-story-signal p {margin:2px 0 0;font-size:13px;line-height:1.55;color:var(--milk)}
+.wg-story-stage-foot {display:flex;gap:10px;align-items:center;color:var(--sand);font-size:11px;line-height:1.5;margin-top:16px}
+.wg-story-stage-foot>span {flex:1}
+.wg-story-stage-foot>svg:last-child {color:var(--terracotta)}
+.wg-story-steps {position:relative;min-width:0}
+.wg-story-rail {position:absolute;top:0;bottom:0;left:15px;width:1px;background:color-mix(in srgb,var(--sand) 30%,transparent)}
+.wg-story-rail>span {display:block;width:100%;height:100%;background:var(--terracotta);transform-origin:top}
+.wg-story-step {position:relative;display:grid;grid-template-columns:32px minmax(0,1fr);gap:24px;align-items:center;min-height:clamp(260px,40svh,420px);scroll-margin-top:150px}
+.wg-story-step-mark {position:relative;z-index:1;display:grid;place-items:center;height:32px;width:32px;color:var(--sand);background:var(--deep-water);border:1px solid color-mix(in srgb,var(--sand) 45%,transparent);border-radius:50%;transition:background 250ms var(--ease),color 250ms var(--ease),transform 250ms var(--ease)}
+.wg-story-step-mark>span {position:absolute;inset:0;display:grid;place-items:center}
+.wg-story-step[data-active=true] .wg-story-step-mark {color:var(--deep-water);background:var(--terracotta);border-color:var(--terracotta);transform:scale(1.12)}
+.wg-story-step>div {padding-block:36px;transition:transform 500ms cubic-bezier(.16,1,.3,1)}
+.wg-story-step[data-active=true]>div {transform:translateX(8px)}
+.wg-story-step-label {display:block;font-size:12px;color:var(--sand);margin-bottom:18px}
+.wg-story-step h3 {color:var(--sand);font-size:clamp(26px,2.6vw,38px);font-weight:550;letter-spacing:-.03em;line-height:1.22;margin:0 0 18px;transition:color 250ms var(--ease)}
+.wg-story-step[data-active=true] h3 {color:var(--milk)}
+.wg-story-step p {font-size:14px;line-height:1.85;color:var(--sand);margin:0;max-width:42ch}
+.wg-story-step-arrow {display:block;margin-top:24px;color:var(--terracotta);opacity:0;transform:translateX(-12px);transition:opacity 250ms var(--ease),transform 400ms var(--ease)}
+.wg-story-step[data-active=true] .wg-story-step-arrow {opacity:1;transform:none}
+.wg-story[data-scroll=false] .wg-story-step {display:none;min-height:0}
+.wg-story[data-scroll=false] .wg-story-step[data-active=true] {display:grid}
+.wg-story[data-scroll=false] .wg-story-rail {display:none}
+.wg-role-list .wg-role-row {padding-block:26px}
+.wg-role-list>div:first-child .wg-role-row {padding-top:0}
+.wg-role-list>div:last-child .wg-role-row {border-bottom:0}
+@keyframes wg-copy-arrive {from{transform:translateY(20px);opacity:.3}to{transform:translateY(0);opacity:1}}
+@keyframes wg-surface-arrive {from{transform:scale(.65);opacity:0}to{transform:scale(1);opacity:.65}}
+@media(prefers-reduced-motion:no-preference) {
+ .wg-hero-summary {animation:wg-copy-arrive 700ms 140ms cubic-bezier(.16,1,.3,1) both}
+ .wg-hero-description {animation:wg-copy-arrive 700ms 220ms cubic-bezier(.16,1,.3,1) both}
+ .wg-hero .rp-actions {animation:wg-copy-arrive 650ms 290ms cubic-bezier(.16,1,.3,1) both}
+ .wg-hero-footnote {animation:wg-copy-arrive 600ms 360ms cubic-bezier(.16,1,.3,1) both}
+ .wg-water-surface ellipse {animation:wg-surface-arrive 1300ms cubic-bezier(.16,1,.3,1) both}
+ .wg-water-surface ellipse:nth-child(2) {animation-delay:90ms}
+ .wg-water-surface ellipse:nth-child(3) {animation-delay:180ms}
+ .wg-water-surface ellipse:nth-child(4) {animation-delay:270ms}
+ .wg-story[data-scroll=false] .wg-story-step[data-active=true]>div {animation:wg-copy-arrive 400ms cubic-bezier(.16,1,.3,1) both}
+}
+@media(hover:hover) and (pointer:fine) {
+ .wg-story-controls>button:not([aria-pressed=true]):hover {background:color-mix(in srgb,var(--teal) 30%,var(--deep-water));border-color:var(--sand)}
+}
+@media(max-width:1100px) {
+ .wg-story {gap:40px;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ .wg-story-step {gap:18px}
+ .wg-story-step h3 {font-size:28px}
+ .wg-story-controls>button {font-size:10px}
+}
+@media(max-width:760px) {
+ .wg-water-surface {height:100px;bottom:65px}
+ .wg-river-passage {padding-block:32px 44px}
+ .wg-river-passage p {font-size:clamp(22px,5vw,34px);line-height:1.4;white-space:normal;max-width:25ch}
+ .wg-motion-mission {padding-block:56px 40px}
+ .wg-story {display:block;margin-top:32px}
+ .wg-story-controls {gap:5px;margin-bottom:12px}
+ .wg-story-controls>button {min-height:66px;font-size:10px}
+ .wg-story-visual {height:390px}
+ .wg-story-stage-foot {font-size:10px;margin-top:12px}
+ .wg-story-stage-foot>svg:last-child {display:none}
+ .wg-story-steps {margin-top:24px}
+ .wg-story-step {gap:16px}
+ .wg-story-step>div {padding-block:8px}
+ .wg-story-step h3 {font-size:28px;max-width:26ch}
+ .wg-story-step p {font-size:13px;max-width:48ch}
+ .wg-story-step-label {margin-bottom:12px}
+ .wg-story-step-arrow {margin-top:16px}
+ .wg-story-step[data-active=true]>div {transform:none}
+ .wg-story-step-mark {align-self:start;margin-top:10px}
+ .wg-role-list .wg-role-row {padding-block:22px}
+}
+@media(prefers-reduced-motion:reduce) {
+ .wg-hero-summary,.wg-hero-description,.wg-hero .rp-actions,.wg-hero-footnote,.wg-water-surface ellipse {animation:none}
+ .wg-prototype-scroll-pose,.wg-water-surface,.wg-story-river img,.wg-story-step>div,.wg-story-step-mark,.wg-heading-mask>span {transform:none!important}
+ .wg-story-river img,.wg-story-step>div,.wg-story-step-mark,.wg-story-step h3,.wg-story-step-arrow,.wg-story-controls>button {transition:none}
+ .wg-story-step-arrow {opacity:1;transform:none}
+}
+@media print {
+ .wg-story {display:block}
+ .wg-story-stage {position:static!important}
+ .wg-story .wg-story-step {display:grid!important;min-height:0;break-inside:avoid}
+ .wg-story-controls,.wg-story-rail {display:none}
+ .wg-heading-mask {overflow:visible}
+ .wg-heading-mask>span {transform:none!important}
+}

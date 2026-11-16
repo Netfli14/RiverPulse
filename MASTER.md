@@ -30,7 +30,7 @@ Depth comes from actual photographic objects overlapping their background and so
 
 ## Assets and allowed patterns
 
-Allowed patterns: actual RC-01 and station photographs extracted with their original alpha masks from the supplied English presentation; the supplied Ishim photograph; geometric river linework; a water plane beneath the robot; offset soft shadows on physical photo objects; overlapping photos; a dark system section; the existing interactive halftone footer; separators between role choices and actual data rows.
+Allowed patterns: actual RC-01 and station photographs extracted with their original alpha masks from the supplied English presentation; the supplied Ishim photograph; geometric river linework; a water plane beneath the robot; scroll-synchronised river lines and kinetic process typography; a sticky four-stage story with prototype photo transitions and explicitly labelled schematic drawings; offset soft shadows on physical photo objects; overlapping photos; a dark system section; the existing interactive halftone footer; separators between role choices and actual data rows.
 
 Asset provenance:
 
@@ -44,11 +44,13 @@ Do not add generated hardware, unlabelled synthetic readings, decorative status 
 
 Use existing Framer Motion and native CSS; no new runtime dependencies.
 
-- The robot has one 850ms arrival using cubic-bezier(.16,1,.3,1).
+- The robot has one 900ms arrival using cubic-bezier(.16,1,.3,1), followed by finite water-ring arrivals. Summary and actions enter in a 140–360ms sequence. The scene replay remains available.
 - Pointer rotation is limited to 2.5 degrees per axis, using motion values and springs with stiffness 180 and damping 28. Movement does not update React state. Mouse leave and pointer cancellation reset the pose; touch does not drive it.
-- Reduced motion removes arrival and pointer rotation. Copy and actions are visible by default, independent of any entrance animation.
+- Reduced motion removes arrival, pointer rotation, photo zoom and kinetic text. It also removes the sticky scroll story: all four stages remain available through ordinary buttons. Copy and actions remain visible.
+- Desktop scroll moves the robot by at most 92px, counter-moves the river linework by 54px and rotates the photo by at most 7 degrees. These values update outside React; story state changes only at four section boundaries. On touch and narrow viewports the story uses manual stage buttons, with no pinned scroll interval.
+- Story photo changes use 650ms entry / 200ms exit; diagram changes use a 160ms crossfade and finite 1100ms SVG line drawing. The drawings are labelled as explanations, never live measurements. Headings reveal by line in 700ms; role rows lift once in 650ms. All new animation uses existing Framer Motion / CSS.
 - Inherited operational micro interactions use 150ms; UI feedback uses 200–280ms. Existing section reveals, river-line replay and halftone-footer behaviour remain supported outside the revised homepage.
-- Animate transform and opacity for new motion. No perpetual homepage motion, layout-property animation, or persistent will-change.
+- Animate transform and opacity for new motion; short SVG stroke drawing is restricted to the small explanatory graphics. No perpetual homepage motion, layout-property animation, or persistent will-change.
 
 The robot provider remains outside route animations. Animation must never delay packets, notifications or STOP commands.
 

@@ -16,7 +16,7 @@ function subscribeDesktop(notify:()=>void) {
 }
 const readDesktop=()=>window.matchMedia(desktopQuery).matches;
 const serverDesktop=()=>false;
-function useDesktopMotion() {
+export function useDesktopMotion() {
   return useSyncExternalStore(subscribeDesktop,readDesktop,serverDesktop);
 }
 
@@ -29,8 +29,10 @@ export function PrototypeScene({language}:{language:Language}) {
   const rotateX=useSpring(x,{stiffness:180,damping:28});
   const rotateY=useSpring(y,{stiffness:180,damping:28});
   const {scrollYProgress}=useScroll({target:ref,offset:["start start","end start"]});
-  const foregroundY=useTransform(scrollYProgress,[0,1],[0,32]);
-  const backgroundY=useTransform(scrollYProgress,[0,1],[0,-12]);
+  const foregroundY=useTransform(scrollYProgress,[0,1],[0,92]);
+  const foregroundRotate=useTransform(scrollYProgress,[0,1],[0,-7]);
+  const backgroundY=useTransform(scrollYProgress,[0,1],[0,-54]);
+  const waterScale=useTransform(scrollYProgress,[0,1],[1,1.22]);
   const move=(event:PointerEvent<HTMLElement>)=>{
     if(!desktop||event.pointerType!=="mouse")return;
     const rect=event.currentTarget.getBoundingClientRect();
@@ -46,12 +48,16 @@ export function PrototypeScene({language}:{language:Language}) {
           {[0,1].map(i=><path key={i} d={`M ${-112+i*76} 720 C ${572+i*28} 615,${-103+i*38} 338,${439+i*40} 215 S ${476+i*44} 30,${818+i*52} -90`} />)}
         </g>
       </motion.svg>
-      <span className="wg-water-plane"/>
+      <motion.span className="wg-water-surface" style={{scale:desktop?waterScale:1}}>
+        <svg viewBox="0 0 500 180" preserveAspectRatio="none">
+          {[0,1,2,3].map(i=><ellipse key={i} cx="250" cy="90" rx={100+i*44} ry={28+i*14} />)}
+        </svg>
+      </motion.span>
     </div>
     <motion.div className="wg-prototype-object" style={{rotateX:desktop?rotateX:0,rotateY:desktop?rotateY:0,y:desktop?foregroundY:0}}>
-      <div key={iteration} className="wg-prototype-arrival">
+      <motion.div style={{rotate:desktop?foregroundRotate:0}} className="wg-prototype-scroll-pose"><div key={iteration} className="wg-prototype-arrival">
       <img className="wg-prototype-robot" src="/assets/rivercleaner-prototype.webp" width={960} height={720} fetchPriority="high" alt={copy(language,"Реальный прототип RiverCleaner RC-01 с транспортёром для сбора мусора","Қоқыс жинайтын конвейері бар RiverCleaner RC-01 нақты прототипі","The RiverCleaner RC-01 prototype with its litter collection conveyor")}/>
-      </div>
+      </div></motion.div>
     </motion.div>
     {!reduce&&<button className="wg-scene-replay" type="button" onClick={()=>{reset();setIteration(i=>i+1)}} aria-label={copy(language,"Повторить анимацию робота","Робот анимациясын қайталау","Replay the robot animation")} title={copy(language,"Повторить анимацию","Анимацияны қайталау","Replay animation")}><RotateCcw size={17} aria-hidden="true"/></button>}
     <figcaption className="wg-prototype-caption">
