@@ -15,7 +15,7 @@ The November 2026 refinement follows the user's request for more depth, the newl
 | milk | #F4F5EF | Light page ground |
 | white | #FFFFFF | Panels and action text |
 | terracotta | #F0764F | Contrasting orange accents |
-| action | #B84727 | Darker orange for accessible white-text homepage action |
+| action | #B84727 | Darker orange for white-text actions and light-surface text |
 | ink | #18363D | Body text |
 
 Public semantic token names remain compatible. Light is the default, with the existing saved dark-theme preference and switch supported. Neutral variants use colour-mix. Operational controls retain their existing meaning.
@@ -60,4 +60,14 @@ Preserve all existing routes, language switching (RU/KZ/EN), theme switching, us
 
 Do not change ESP32 BLE GATT, firmware, packet validation, STOP acknowledgements, WSS, authenticated HTTP ingestion, Google Maps, camera/YOLO, stored data, original PDFs or QR destinations for a visual task.
 
-See `docs/DESIGN_REVIEW.md` for checks and limits.
+## 21 November: density map and immediate entry
+
+The map opens on the team's Sarykol coordinate, 42.535650, 68.288398, with a waste-density mode selected. The existing Google map remains available through the ordinary-map switch, and both rivers remain selectable. The scientific blue–cyan–green–yellow–orange–red ramp is confined to the density visualisation; the rest of the site retains the two water colours and orange accent. The first homepage action uses chestnut text on terracotta (4.99:1).
+
+Density is a deterministic, explicitly labelled demonstration with a relative index. It has no mass units or live timestamps and never enters telemetry, reports or exports. Do not imply that its clusters were measured or that the robot was moved to Sarykol. Preserve the supplied coordinate rather than inventing river geometry.
+
+MapLibre supplies the WebGL heatmap and OSM raster cartography. A native 2D raster map handles unavailable WebGL2, with geographic heat/marker alignment, pointer and keyboard panning, zoom and centre controls. If cartography fails, an explicit message accompanies the remaining georeferenced demo layer. Retain OSM attribution in every rendering path.
+
+The public homepage renders immediately, before saved preferences and portal bootstrap complete; protected-route session gates stay intact. The footer uses content height with a short wordmark area instead of a fixed tall container. Its entry ring runs once and respects changes to reduced motion; idle frames sleep.
+
+See `docs/DESIGN_REVIEW.md` and `docs/DENSITY_MAP_QA.md` for checks and limits.

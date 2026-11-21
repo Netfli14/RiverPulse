@@ -140,7 +140,7 @@ const HWF_CSS = `
 }
 .hwf-brand strong { display: block; font-weight: 500; }
 .hwf-brand span { opacity: .45; }
-.hwf-col h3 { margin: 0; font: inherit; opacity: .4; font-weight: 500; }
+.hwf-col h3 { margin: 0 0 5px; font: inherit; color:inherit; opacity: .8; font-weight: 500; }
 .hwf-col ul { list-style: none; margin: 0; padding: 0; }
 .hwf-col a, .hwf-up {
   color: inherit; text-decoration: none; opacity: .78; background: none; border: 0; padding: 0;
@@ -157,9 +157,17 @@ const HWF_CSS = `
   font-family: var(--hwf-mono); font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase;
 }
 .hwf-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.hwf-mark { height:clamp(112px, 10vw, 180px); margin-top:18px; }
+.hwf-top { font-size:12px; letter-spacing:.1em; }
+.hwf-brand span { opacity:.78; }
+.hwf-col a { display:inline-block; min-height:36px; padding-block:4px; }
+.hwf-rule { height:0; padding-top:0; }
+.hwf-up { position:absolute; right:0; top:8px; display:grid; place-items:center; min-width:44px; min-height:44px; }
 @media (max-width: 720px) {
   .hwf-top { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); row-gap: 18px; }
   .hwf-brand { grid-column: 1 / -1; }
+  .hwf-mark { height:clamp(136px, 30vw, 190px); margin-top:0; }
+  .hwf-rule { height:44px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .hwf-col a, .hwf-up { transition: none; }
@@ -182,7 +190,7 @@ export default function HalftoneWordmarkFooter({
   fontFamily = SANS_STACK,
   fontWeight = 800,
   monoFamily = MONO_STACK,
-  height = "560px",
+  height = "auto",
   className = "",
 }: HalftoneWordmarkFooterProps) {
   const colors = { ...(PRESETS[preset] || PRESETS.night), ...(palette || {}) }
@@ -199,7 +207,9 @@ export default function HalftoneWordmarkFooter({
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)")
+    let reduced = motionQuery.matches
+    let entered = false
     let w = 0
     let h = 0
     let dpr = 1
@@ -383,7 +393,7 @@ export default function HalftoneWordmarkFooter({
       return [e.clientX - b.left, e.clientY - b.top]
     }
     const onMove = (e: PointerEv) => {
-      if (!opts.current.interactive) return
+      if (!opts.current.interactive || reduced) return
       const p = toLocal(e)
       px = p[0]
       py = p[1]
@@ -416,9 +426,19 @@ export default function HalftoneWordmarkFooter({
     ro.observe(root)
     const io = new IntersectionObserver((entries) => {
       visible = entries[0] ? entries[0].isIntersecting : true
+      if (visible && !entered && !reduced) {
+        entered = true
+        ring = { x:w * .25, y:h - (w < 720 ? 85 : 60), t:performance.now() }
+      }
       if (visible) wake()
     })
     io.observe(root)
+    const onMotionChange = () => {
+      reduced = motionQuery.matches
+      px = -1e5; py = -1e5; ring.t = -1
+      wake()
+    }
+    motionQuery.addEventListener("change", onMotionChange)
     // A web font that lands late re-sets the word in its real face.
     let alive = true
     if (document.fonts && document.fonts.ready) {
@@ -434,6 +454,7 @@ export default function HalftoneWordmarkFooter({
       cancelAnimationFrame(raf)
       ro.disconnect()
       io.disconnect()
+      motionQuery.removeEventListener("change", onMotionChange)
       root.removeEventListener("pointermove", onMove)
       root.removeEventListener("pointerleave", onLeave)
       root.removeEventListener("pointerdown", onDown)
@@ -485,6 +506,7 @@ export default function HalftoneWordmarkFooter({
           </button>
         ) : null}
       </div>
+      <div className="hwf-mark" aria-hidden="true" />
     </footer>
   )
 }

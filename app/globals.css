@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "../vendor/shadcn-tailwind-4.13.0.css";
+@import "maplibre-gl/dist/maplibre-gl.css";
 
 @font-face {
  font-family:"Inter"; src:url("/fonts/inter-variable.woff") format("woff");

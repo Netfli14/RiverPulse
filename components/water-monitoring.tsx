@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import { ArrowUpRight, Download, FlaskConical, MapPin, Radio, Search } from "lucide-react";
+import { ArrowUpRight, Download, FlaskConical, Layers, Map, MapPin, Radio, Search } from "lucide-react";
 import { AppLink as Link } from "@/components/app-link";
 import RealWaterMap, { waterStations } from "@/components/real-water-map";
 import { useRobot } from "@/components/robot-provider";
@@ -13,6 +13,7 @@ const text = (language: Language, ru: string, kz: string, en: string) => languag
 const locale = (language: Language) => language === "RU" ? "ru-RU" : language === "KZ" ? "kk-KZ" : "en-GB";
 const day = (date: string, language: Language) => new Intl.DateTimeFormat(locale(language), { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(date + "T12:00:00Z"));
 const WeeklyWaterChart = dynamic(() => import("@/components/weekly-water-chart"), { ssr: false });
+const WasteDensityMap = dynamic(() => import("@/components/waste-density-map"), { ssr: false, loading: () => <section className="wg-density-map wg-density-loading" aria-busy="true"><span>Water Guard</span></section> });
 
 function RiverLinks({ language, selected }: { language: Language; selected: WaterBodyId }) {
   return <nav className="wg-river-links" aria-label={text(language, "Выбрать реку", "Өзенді таңдау", "Choose a river")}>
@@ -68,7 +69,8 @@ export function WeeklyAnalytics({ language }: { language: Language }) {
 }
 
 export function RiverMapPage({ language }: { language: Language }) {
-  const [selectedId, setSelectedId] = useState<WaterBodyId>("esil");
+  const [selectedId, setSelectedId] = useState<WaterBodyId>("sarykol");
+  const [layer, setLayer] = useState<"density" | "map">("density");
   const [query, setQuery] = useState("");
   const [onlyLive, setOnlyLive] = useState(false);
   const robot = useRobot();
@@ -78,5 +80,30 @@ export function RiverMapPage({ language }: { language: Language }) {
   });
   const body = visible.find(item => item.id === selectedId) || visible[0];
   const position = body ? waterPosition(body, robot.reading?.gps) : null;
-  return <main className="rp-map-page"><div className="rp-map-toolbar"><div><h1>{text(language, "Две реки. Одна платформа.", "Екі өзен. Бір платформа.", "Two rivers. One platform.")}</h1><p>{text(language, "Ишим и Сарыколь · точки команды и недельные примеры", "Есіл және Сарыкөл · команда нүктелері және апталық мысалдар", "Ishim and Sarykol · team locations and weekly examples")}</p></div></div><div className="rp-map-layout"><aside className="rp-card rp-map-filters wg-river-filters"><label className="rp-search"><Search size={17} /><input aria-label={text(language, "Найти реку", "Өзенді табу", "Find a river")} placeholder={text(language, "Ишим / Сарыколь", "Есіл / Сарыкөл", "Ishim / Sarykol")} value={query} onChange={event => setQuery(event.target.value)} /></label><label className="wg-live-filter"><input type="checkbox" checked={onlyLive} onChange={event => setOnlyLive(event.target.checked)} />{text(language, "Только с живыми данными", "Тек нақты уақыт деректері", "Live data only")}</label><p>{text(language, "Водоёмов", "Су айдындары", "Water bodies")}: {visible.length} · {text(language, "Роботов", "Роботтар", "Robots")}: {visible.filter(item => item.robotId).length}</p><div className="wg-river-list">{visible.map(item => <button type="button" key={item.id} className={body?.id === item.id ? "active" : ""} aria-pressed={body?.id === item.id} onClick={() => setSelectedId(item.id)}><MapPin size={17} /><span><b>{item.name[language]}</b><small>{item.robotId ? "RC-01 · " : ""}{text(language, "7 дней · демо", "7 күн · демо", "7 days · demo")}</small></span></button>)}</div></aside>{body ? <RealWaterMap language={language} className="rp-main-map" stations={waterStations.filter(station => station.bodyId === body.id)} /> : <section className="rp-card rp-panel"><h2>{text(language, "Ничего не найдено", "Ештеңе табылмады", "No matching rivers")}</h2><button type="button" className="rp-button secondary" onClick={() => { setQuery(""); setOnlyLive(false); }}>{text(language, "Сбросить фильтры", "Сүзгілерді тазалау", "Reset filters")}</button></section>}{body && position && <aside className="rp-card rp-station-panel wg-river-panel"><span className="rp-kicker">{body.robotId ? "RIVERCLEANER RC-01" : text(language, "ТОЧКА КОМАНДЫ", "КОМАНДА НҮКТЕСІ", "TEAM LOCATION")}</span><h2>{body.name[language]}</h2><p>{body.location[language]}</p><div className="rp-coordinates"><MapPin size={16} />{position.lat.toFixed(6)}, {position.lng.toFixed(6)}</div><p>{body.robotId && robot.reading?.gps ? text(language, "Последний GPS робота.", "Роботтың соңғы GPS орны.", "Latest robot GPS.") : text(language, "Координаты заданы командой. GPS-подтверждение отсутствует.", "Координаталарды команда берді. GPS растауы жоқ.", "Coordinates supplied by the team. No GPS confirmation.")}</p><span className="wg-demo-badge">{text(language, "Неделя · демонстрация", "Апта · демонстрация", "Week · demonstration")}</span><p>{text(language, "7 дневных примеров параметров воды. Реальные данные оборудования показаны отдельно.", "Су параметрлерінің 7 күндік мысалы. Нақты жабдық деректері бөлек көрсетіледі.", "7 daily examples of water parameters. Hardware readings are shown separately.")}</p><Link href={`/water/${body.id}`} className="rp-button primary full">{text(language, "Открыть неделю", "Аптаны ашу", "View week")}<ArrowUpRight size={16} /></Link></aside>}</div></main>;
+  return <main className="rp-map-page wg-density-page">
+    <div className="rp-map-toolbar">
+      <div><h1>{text(language, "Две реки. Одна платформа.", "Екі өзен. Бір платформа.", "Two rivers. One platform.")}</h1><p>{text(language, "Сарыколь и Ишим · карта воды и плотности мусора", "Сарыкөл және Есіл · су және қоқыс тығыздығы картасы", "Sarykol and Ishim · water and waste density maps")}</p></div>
+      <div className="wg-map-mode" role="group" aria-label={text(language, "Режим карты", "Карта режимі", "Map mode")}>
+        <button type="button" aria-pressed={layer === "density"} onClick={() => setLayer("density")}><Layers size={17} aria-hidden="true" />{text(language, "Плотность мусора", "Қоқыс тығыздығы", "Waste density")}</button>
+        <button type="button" aria-pressed={layer === "map"} onClick={() => setLayer("map")}><Map size={17} aria-hidden="true" />{text(language, "Обычная карта", "Қалыпты карта", "Standard map")}</button>
+      </div>
+    </div>
+    <div className="rp-map-layout">
+      <aside className="rp-card rp-map-filters wg-river-filters">
+        <label className="rp-search"><Search size={17} aria-hidden="true" /><input aria-label={text(language, "Найти реку", "Өзенді табу", "Find a river")} placeholder={text(language, "Ишим / Сарыколь", "Есіл / Сарыкөл", "Ishim / Sarykol")} value={query} onChange={event => setQuery(event.target.value)} /></label>
+        <label className="wg-live-filter"><input type="checkbox" checked={onlyLive} onChange={event => setOnlyLive(event.target.checked)} />{text(language, "Только с живыми данными", "Тек нақты уақыт деректері", "Live data only")}</label>
+        <p>{text(language, "Водоёмов", "Су айдындары", "Water bodies")}: {visible.length}</p>
+        <div className="wg-river-list">{visible.map(item => <button type="button" key={item.id} className={body?.id === item.id ? "active" : ""} aria-pressed={body?.id === item.id} onClick={() => setSelectedId(item.id)}><MapPin size={17} aria-hidden="true" /><span><b>{item.name[language]}</b><small>{item.robotId ? "RC-01" : text(language, "Точка команды", "Команда нүктесі", "Team location")}</small></span></button>)}</div>
+      </aside>
+      {body ? layer === "density" ? <WasteDensityMap key={body.id} language={language} body={body} /> : <RealWaterMap language={language} className="rp-main-map" stations={waterStations.filter(station => station.bodyId === body.id)} /> : <section className="rp-card rp-panel"><h2>{text(language, "Ничего не найдено", "Ештеңе табылмады", "No matching rivers")}</h2><button type="button" className="rp-button secondary" onClick={() => { setQuery(""); setOnlyLive(false); }}>{text(language, "Сбросить фильтры", "Сүзгілерді тазалау", "Reset filters")}</button></section>}
+      {body && position && <aside className="rp-card rp-station-panel wg-river-panel">
+        <span className="rp-kicker">{body.robotId ? "RIVERCLEANER RC-01" : text(language, "ТОЧКА КОМАНДЫ", "КОМАНДА НҮКТЕСІ", "TEAM LOCATION")}</span>
+        <h2>{body.name[language]}</h2><p>{body.location[language]}</p>
+        <div className="rp-coordinates"><MapPin size={16} aria-hidden="true" />{position.lat.toFixed(6)}, {position.lng.toFixed(6)}</div>
+        <p>{body.robotId && robot.reading?.gps ? text(language, "Последний GPS робота.", "Роботтың соңғы GPS орны.", "Latest robot GPS.") : text(language, "Координаты заданы командой.", "Координаталарды команда берді.", "Coordinates supplied by the team.")}</p>
+        {layer === "density" && <div className="wg-density-explainer"><Layers size={21} aria-hidden="true" /><h3>{text(language, "Где больше скоплений", "Қай жерде көбірек жиналған", "Where concentrations are higher")}</h3><p>{text(language, "От синего к красному: пример распределения мусора в выбранной зоне. Цвета показывают относительную плотность, а не массу отходов.", "Көктен қызылға дейін: таңдалған аймақтағы қоқыстың таралу мысалы. Түс қалдық массасын емес, салыстырмалы тығыздықты көрсетеді.", "Blue to red shows an example distribution in the selected area. Colours represent relative density, not waste mass.")}</p><span className="wg-demo-badge">{text(language, "Демонстрационный слой", "Демонстрациялық қабат", "Demonstration layer")}</span></div>}
+        <Link href={`/water/${body.id}`} className="rp-button primary full">{text(language, "Параметры воды", "Су параметрлері", "Water parameters")}</Link>
+      </aside>}
+    </div>
+  </main>;
 }

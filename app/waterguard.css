@@ -334,3 +334,102 @@
  .wg-heading-mask {overflow:visible}
  .wg-heading-mask>span {transform:none!important}
 }
+
+/* Scientific colour stays inside the density layer; the site keeps its brand. */
+.wg-density-page .rp-map-toolbar {display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.wg-map-mode {display:flex;flex-wrap:wrap;gap:6px;padding:5px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px}
+.wg-map-mode>button {display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:46px;padding:12px 15px;border:0;border-radius:8px;background:transparent;color:var(--text);font-size:14px;line-height:1.4}
+.wg-map-mode>button[aria-pressed=true] {background:var(--terracotta);color:var(--chestnut)}
+.wg-map-mode>button:active {transform:scale(.97)}
+.wg-density-page .wg-river-list>button.active {border-color:var(--action);background:color-mix(in srgb,var(--terracotta) 10%,var(--surface));color:var(--heading)}
+.wg-density-page .wg-river-list>button.active svg {color:var(--action)}
+.wg-density-map {--density-bg:#03042a;position:relative;isolation:isolate;overflow:hidden;min-width:0;min-height:580px;height:100%;border-radius:16px;background:var(--density-bg);color:#F4F5EF}
+.wg-density-loading {display:grid;place-items:center}
+.wg-density-canvas,.wg-density-fallback {position:absolute;inset:0;display:block;width:100%;height:100%}
+.wg-density-fallback {object-fit:fill;transition:opacity 180ms var(--ease)}
+.wg-density-canvas {transition:opacity 240ms var(--ease)}
+.wg-density-topline {position:absolute;left:18px;right:60px;top:18px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;pointer-events:none}
+.wg-density-topline>span {display:inline-flex;align-items:center;gap:7px;background:var(--chestnut);color:var(--milk);padding:8px 10px;border-radius:6px;font-size:14px;font-weight:600;line-height:1.4}
+.wg-density-topline .wg-density-demo {font-size:11px;letter-spacing:.04em;color:var(--terracotta);font-weight:650}
+.wg-density-tools {position:absolute;left:18px;top:72px;right:18px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;pointer-events:none}
+.wg-density-tools label {pointer-events:auto;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:10px 12px;background:var(--chestnut);color:var(--milk);border:1px solid color-mix(in srgb,var(--sand) 35%,transparent);border-radius:8px;font-size:14px;line-height:1.4;cursor:pointer}
+.wg-density-tools input {accent-color:var(--terracotta);width:16px;height:16px;margin:0}
+.wg-density-tools>button {pointer-events:auto;display:grid;place-items:center;min-width:44px;min-height:44px;background:var(--chestnut);color:var(--milk);border:1px solid color-mix(in srgb,var(--sand) 35%,transparent);border-radius:8px}
+.wg-density-map :focus-visible {outline:3px solid var(--terracotta);outline-offset:3px}
+.wg-density-anchor {position:absolute;left:50%;top:50%;display:grid;justify-items:center;gap:12px;transform:translate(-50%,-50%);pointer-events:none}
+.wg-density-anchor>span {width:15px;height:15px;border:3px solid var(--milk);outline:4px solid var(--chestnut);border-radius:50%;background:var(--terracotta)}
+.wg-density-anchor>b {font-size:12px;font-weight:550;background:var(--chestnut);padding:6px 9px;border-radius:5px;color:var(--milk)}
+.wg-density-legend {position:absolute;left:18px;right:18px;bottom:43px;padding:16px 18px 12px;background:var(--chestnut);border-radius:10px;pointer-events:none}
+.wg-density-legend>div:first-child {display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.wg-density-legend strong {font-size:16px;font-weight:600;line-height:1.4}
+.wg-density-legend>div>span {font-size:12px;color:var(--sand);line-height:1.5}
+.wg-density-scale {height:10px;border-radius:3px;background:linear-gradient(90deg,#03042a 0%,#0416ea 16.66%,#0fbdf0 33.33%,#7ced91 50%,#e9c11e 66.66%,#F0764F 83.33%,#a10f08 100%);border:1px solid #F4F5EF55}
+.wg-density-ticks {display:flex;justify-content:space-between;margin-top:5px;font-variant-numeric:tabular-nums}
+.wg-density-legend p {font-size:12px;line-height:1.6;color:var(--sand);margin:9px 0 0;max-width:68ch}
+.wg-density-map-meta {position:absolute;bottom:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:35px;background:var(--chestnut);padding:8px 16px;font-size:11px;line-height:1.5;color:var(--sand);font-variant-numeric:tabular-nums}
+.wg-density-map-meta>span {flex:1}
+.wg-density-map-meta a {display:inline-flex;align-items:center;gap:6px;color:var(--milk);text-decoration:none;padding:4px;margin:-4px;min-height:28px}
+.wg-density-status {position:absolute;top:130px;left:18px;right:18px;margin:0;padding:8px 10px;background:var(--chestnut);color:var(--sand);font-size:12px;line-height:1.6;border-radius:6px}
+.wg-density-explainer {border-top:1px solid var(--border);margin-top:24px;padding-top:22px}
+.wg-density-explainer>svg {color:var(--action)}
+.wg-density-explainer h3 {font-size:20px;line-height:1.4;letter-spacing:-.025em;margin:12px 0}
+.wg-density-explainer p {font-size:14px;line-height:1.8;color:var(--muted);margin:0 0 18px}
+.wg-density-page .wg-river-panel>.rp-button {margin-top:24px}
+.wg-density-map .maplibregl-ctrl-top-right {top:18px;right:18px}
+.wg-density-map .maplibregl-ctrl {margin:0}
+.wg-density-map .maplibregl-ctrl-group {background:var(--chestnut);border:1px solid color-mix(in srgb,var(--sand) 35%,transparent);box-shadow:none;border-radius:8px;overflow:hidden}
+.wg-density-map .maplibregl-ctrl-group button {width:44px;height:44px;background:transparent}
+.wg-density-map .maplibregl-ctrl-group button+button {border-top:1px solid color-mix(in srgb,var(--sand) 30%,transparent)}
+.wg-density-map .maplibregl-ctrl-icon {filter:invert(1)}
+.wg-density-map .maplibregl-ctrl-attrib {color:var(--sand);background:var(--chestnut);font-size:11px;max-width:100%}
+.wg-density-map .maplibregl-ctrl-bottom-left {left:8px;bottom:6px;z-index:3}
+.wg-density-map .maplibregl-ctrl-attrib a {color:var(--milk)}
+.wg-hero .wg-start {background:var(--terracotta);border-color:var(--terracotta);color:var(--chestnut)}
+.wg-prototype-backdrop svg .wg-current-traces {stroke:var(--terracotta)}
+.wg-prototype-caption>span>span {color:var(--terracotta)}
+.wg-title-period {color:var(--terracotta)}
+.rp-header-guest .desktop-action {border-color:var(--action);color:var(--action)}
+.dark .rp-header-guest .desktop-action {border-color:var(--terracotta);color:var(--terracotta)}
+@media(hover:hover) and (pointer:fine) {
+ .wg-hero .wg-start:hover {background:color-mix(in srgb,var(--terracotta) 88%,var(--white));border-color:transparent}
+ .wg-map-mode>button:not([aria-pressed=true]):hover {background:var(--sand);color:var(--chestnut)}
+ .wg-density-tools>button:hover {background:var(--teal)}
+}
+@media(max-width:1100px) {
+ .wg-density-page .rp-map-toolbar {align-items:flex-start}
+ .wg-density-map {min-height:550px}
+ .wg-density-page .rp-station-panel {grid-column:1 / -1}
+}
+@media(max-width:760px) {
+ .wg-map-mode {width:100%;display:grid;grid-template-columns:1fr 1fr;gap:4px}
+ .wg-map-mode>button {font-size:13px;gap:7px;padding:10px 8px}
+ .wg-density-map {min-height:530px;height:530px}
+ .wg-density-topline {left:12px;right:60px;top:12px;gap:6px}
+ .wg-density-topline>span {font-size:13px;padding:7px 9px}
+ .wg-density-topline .wg-density-demo {font-size:10px}
+ .wg-density-tools {top:84px;left:12px;right:12px}
+ .wg-density-tools label {font-size:13px;padding-inline:9px}
+ .wg-density-legend {left:12px;right:12px;bottom:45px;padding:14px 12px 10px}
+ .wg-density-legend strong {font-size:15px}
+ .wg-density-legend>div>span {font-size:11px}
+ .wg-density-legend p {font-size:11px}
+ .wg-density-map-meta {font-size:10px;padding-inline:12px;gap:8px}
+ .wg-density-map .maplibregl-ctrl-top-right {top:12px;right:12px}
+ .wg-density-status {top:140px;left:12px;right:12px}
+}
+@media(prefers-reduced-motion:reduce) {
+ .wg-density-canvas,.wg-density-fallback {transition:none}
+}
+.wg-raster-map {position:absolute;inset:0;overflow:hidden;touch-action:none;cursor:grab;background:#03042a}
+.wg-raster-map:active {cursor:grabbing}
+.wg-raster-pane {position:absolute;inset:0;pointer-events:none}
+.wg-raster-tile {position:absolute;top:0;left:0;max-width:none;width:256px;height:256px;filter:grayscale(1) brightness(.32);opacity:.8;user-select:none}
+.wg-raster-heat {position:absolute;max-width:none;pointer-events:none}
+.wg-raster-marker {position:absolute;width:15px;height:15px;border:3px solid var(--milk);border-radius:50%;background:var(--terracotta);outline:3px solid var(--chestnut);transform:translate(-50%,-50%)}
+.wg-raster-controls {position:absolute;top:18px;right:18px;z-index:2;display:grid;border:1px solid color-mix(in srgb,var(--sand) 35%,transparent);border-radius:8px;overflow:hidden}
+.wg-raster-controls>button {display:grid;place-items:center;min-width:44px;min-height:44px;border:0;background:var(--chestnut);color:var(--milk)}
+.wg-raster-controls>button+button {border-top:1px solid color-mix(in srgb,var(--sand) 30%,transparent)}
+.wg-raster-controls>button:disabled {opacity:1;color:color-mix(in srgb,var(--sand) 45%,var(--chestnut));cursor:not-allowed}
+.wg-raster-zoom {position:absolute;top:164px;right:18px;padding:5px 7px;border-radius:5px;background:var(--chestnut);color:var(--sand);font-size:10px;pointer-events:none}
+@media(hover:hover) and (pointer:fine) {.wg-raster-controls>button:not(:disabled):hover {background:var(--teal)}}
+@media(max-width:760px) {.wg-raster-controls {top:12px;right:12px}.wg-raster-zoom {right:12px;top:157px}}
